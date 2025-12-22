@@ -29,17 +29,27 @@
     <div class="hero-inner container-fluid px-0">
         <div class="hero-content container-xl d-flex flex-column justify-content-center align-items-center text-center">
             @php
-                // Get logo from CMS - prioritize white logo for hero section
+                // Imagen del Hero - si el admin sube una, reemplaza al logo
+                $heroImage = $content['home.hero.image'] ?? null;
+                // Si no hay imagen del hero, usar el logo
                 $logoPath = $global['global.logo'] ?? null;
-                $logoUrl = content_image_url($logoPath, 'images/logo-white.png');
+                
+                // Determinar qué imagen mostrar: Hero personalizada > Logo personalizado > Logo por defecto
+                if ($heroImage) {
+                    $displayImage = content_image_url($heroImage);
+                } elseif ($logoPath) {
+                    $displayImage = content_image_url($logoPath, 'images/logo-white.png');
+                } else {
+                    $displayImage = asset('images/logo-white.png');
+                }
             @endphp
             
-            {{-- Logo Display - White version for hero --}}
-            <img src="{{ $logoUrl }}" 
-                 style="max-height: 300px; max-width: 300px; width: auto; height: auto; object-fit: contain;"    
+            {{-- Imagen principal del Hero (puede ser logo o imagen personalizada) --}}
+            <img src="{{ $displayImage }}" 
+                 style="max-height: 300px; max-width: 400px; width: auto; height: auto; object-fit: contain;"    
                  alt="{{ $global['global.company_name'] ?? 'B&R Tecnología' }}" 
                  class="br-logo mb-3"
-                 onerror="this.onerror=null; this.src='{{ asset('images/logo-br.png') }}'">
+                 onerror="this.onerror=null; this.src='{{ asset('images/logo-white.png') }}'">
 
             <h1 class="hero-title">{{ $content['home.hero.title'] ?? 'Herramientas eléctricas, equipos industriales y tecnología' }}</h1>
             <p class="lead hero-sub">{{ $content['home.hero.subtitle'] ?? 'Su herramienta de trabajo en las mejores manos' }}</p>
@@ -56,13 +66,6 @@
                 <a href="{{ route('contact') }}" class="btn-secondary-br flex-fill text-center">
                     <i class="bi bi-telephone"></i> Contáctanos
                 </a>
-            </div>
-
-            <div class="hero-visual mt-4">
-                @php
-                    $heroImage = $content['home.hero.image'] ?? 'images/hero-product.png';
-                @endphp
-                <img src="{{ content_image_url($heroImage, 'images/hero-product.png') }}" alt="Productos {{ $global['global.company_name'] ?? 'B&R' }}" onerror="this.style.display='none'" class="img-fluid">
             </div>
         </div>
     </div>
