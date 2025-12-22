@@ -48,8 +48,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    
+    // Email change routes - POST for action, GET redirects to profile
     Route::post('/profile/email-change', [ProfileController::class, 'requestEmailChange'])->name('profile.request-email-change');
+    Route::get('/profile/email-change', fn() => redirect()->route('profile.edit'))->name('profile.email-change.redirect');
     Route::post('/profile/email-change/cancel', [ProfileController::class, 'cancelEmailChange'])->name('profile.cancel-email-change');
+    Route::get('/profile/email-change/cancel', fn() => redirect()->route('profile.edit'));
 });
 
 Route::get('/profile/verify-email/{token}', [ProfileController::class, 'verifyEmailChange'])->name('profile.verify-email-change');

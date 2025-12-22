@@ -21,6 +21,8 @@ services:
         value: "false"
       - key: APP_KEY
         value: "base64:uA3aKZpEtiNi4HvEwwyHcTyDJvZLTUYtFzE/XtqJHXA="
+      - key: APP_URL
+        value: "https://brtecnologia-catalog1.onrender.com"
       - key: LOG_CHANNEL
         value: stderr
       - key: DB_CONNECTION

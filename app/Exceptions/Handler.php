@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -32,6 +33,22 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+        
+        // Manejar error 405 redirigiendo a home o página apropiada
+        $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Método no permitido'], 405);
+            }
+            
+            // Si es una ruta de profile, redirigir a profile
+            if (str_contains($request->path(), 'profile')) {
+                return redirect()->route('profile.edit')
+                    ->with('error', 'Acción no válida. Por favor usa el formulario.');
+            }
+            
+            // Para otras rutas, redirigir al home
+            return redirect()->route('home');
         });
     }
 }
