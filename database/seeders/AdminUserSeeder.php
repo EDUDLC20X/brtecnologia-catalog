@@ -21,14 +21,14 @@ class AdminUserSeeder extends Seeder
         if (!User::where('is_admin', true)->exists()) {
             User::create([
                 'name' => 'Administrador B&R',
-                'email' => 'lcruz276_est@instipp.edu.ec',
+                'email' => 'eduardodlcruz05@gmail.com',
                 'email_verified_at' => now(),
                 'password' => Hash::make('Admin2025BR'),
                 'is_admin' => true,
             ]);
             
             $this->command->info('✅ Usuario administrador creado exitosamente');
-            $this->command->info('   Email: lcruz276_est@instipp.edu.ec');
+            $this->command->info('   Email: eduardodlcruz05@gmail.com');
             $this->command->info('   Contraseña: Admin2025BR');
         } else {
             $this->command->info('ℹ️ Ya existe un usuario administrador');

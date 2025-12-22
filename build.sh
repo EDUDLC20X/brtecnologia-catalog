@@ -33,5 +33,5 @@ php artisan route:cache
 php artisan view:cache
 
 echo "=== Build completado ==="
-echo "📧 Admin: lcruz276_est@instipp.edu.ec"
+echo "📧 Admin: eduardodlcruz05@gmail.com"
 echo "🔑 Pass: Admin2025BR""
