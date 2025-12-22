@@ -11,8 +11,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     git \
     curl \
-    nodejs \
-    npm \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip gd bcmath \
     && apt-get clean \
@@ -30,8 +28,7 @@ COPY . .
 # Instalar dependencias de Composer
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
-# Instalar dependencias de npm y compilar assets
-RUN npm install && npm run build
+# Assets ya están pre-compilados en public/build/ - no necesita npm
 
 # Crear directorios necesarios y permisos
 RUN mkdir -p storage/framework/cache/data \
