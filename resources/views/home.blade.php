@@ -31,19 +31,7 @@
             @php
                 // Get logo from CMS - prioritize white logo for hero section
                 $logoPath = $global['global.logo'] ?? null;
-                $logoUrl = null;
-                
-                if ($logoPath) {
-                    // Check if it's a storage path or public path
-                    if (Str::startsWith($logoPath, 'content/')) {
-                        $logoUrl = asset('storage/' . $logoPath);
-                    } else {
-                        $logoUrl = asset($logoPath);
-                    }
-                } else {
-                    // Use white logo for better visibility on blue background
-                    $logoUrl = asset('images/logo-white.png');
-                }
+                $logoUrl = content_image_url($logoPath, 'images/logo-white.png');
             @endphp
             
             {{-- Logo Display - White version for hero --}}
@@ -74,7 +62,7 @@
                 @php
                     $heroImage = $content['home.hero.image'] ?? 'images/hero-product.png';
                 @endphp
-                <img src="{{ Str::startsWith($heroImage, 'content/') ? asset('storage/' . $heroImage) : asset($heroImage) }}" alt="Productos {{ $global['global.company_name'] ?? 'B&R' }}" onerror="this.style.display='none'" class="img-fluid">
+                <img src="{{ content_image_url($heroImage, 'images/hero-product.png') }}" alt="Productos {{ $global['global.company_name'] ?? 'B&R' }}" onerror="this.style.display='none'" class="img-fluid">
             </div>
         </div>
     </div>

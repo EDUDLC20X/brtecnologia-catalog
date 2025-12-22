@@ -18,6 +18,7 @@ class SiteContent extends Model
         'value',
         'default_value',
         'image_path',
+        'cloudinary_public_id',
         'help_text',
         'order',
     ];

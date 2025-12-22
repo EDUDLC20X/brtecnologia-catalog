@@ -3,7 +3,7 @@
         @foreach($products as $product)
             @php
                 // prepare images array for quick-view usage
-                $images = $product->images->map(function($img){ return ['id' => $img->id, 'path' => asset('storage/' . ltrim($img->path, '/'))]; })->toArray();
+                $images = $product->images->map(function($img){ return ['id' => $img->id, 'path' => image_url($img->path)]; })->toArray();
                 $isOnSale = $product->isCurrentlyOnSale();
             @endphp
             <div class="col-6 col-md-4 col-lg-3 product-card" data-product-id="{{ $product->id }}" data-product-images='@json($images)'>
@@ -16,7 +16,7 @@
                     <div class="br-product-media">
                         @if($product->mainImage)
                             <img 
-                                src="{{ asset('storage/' . ltrim($product->mainImage->path, '/')) }}" 
+                                src="{{ image_url($product->mainImage->path) }}" 
                                 alt="{{ $product->name }}"
                                 loading="lazy"
                                 decoding="async"

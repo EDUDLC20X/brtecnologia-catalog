@@ -296,9 +296,7 @@
             <!-- Header -->
             @php
                 $logoWhite = \App\Models\SiteContent::get('global.logo_white');
-                $logoWhiteUrl = $logoWhite 
-                    ? (\Illuminate\Support\Str::startsWith($logoWhite, 'content/') ? asset('storage/' . $logoWhite) : asset($logoWhite))
-                    : asset('images/logo-white.png');
+                $logoWhiteUrl = content_image_url($logoWhite, 'images/logo-white.png');
                 $companyName = \App\Models\SiteContent::get('global.company_name', 'B&R Tecnología');
             @endphp
             <div class="login-header">

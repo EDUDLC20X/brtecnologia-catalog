@@ -111,7 +111,7 @@
                                         </div>
                                         <div class="product-image">
                                             @if($product->mainImage)
-                                                <img src="{{ asset('storage/' . ltrim($product->mainImage->path, '/')) }}" 
+                                                <img src="{{ image_url($product->mainImage->path) }}" 
                                                      alt="{{ $product->name }}"
                                                      loading="lazy">
                                             @else
@@ -190,7 +190,7 @@
                                             @endif
                                             <div class="product-image">
                                                 @if($product->mainImage)
-                                                    <img src="{{ asset('storage/' . ltrim($product->mainImage->path, '/')) }}" 
+                                                    <img src="{{ image_url($product->mainImage->path) }}" 
                                                          alt="{{ $product->name }}"
                                                          loading="lazy">
                                                 @else

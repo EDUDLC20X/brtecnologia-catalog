@@ -3,18 +3,7 @@
 @php
     // Cargar logo de navegación desde el CMS
     $navbarLogo = \App\Models\SiteContent::get('global.navbar_logo');
-    $navbarLogoUrl = null;
-    
-    if ($navbarLogo) {
-        if (\Illuminate\Support\Str::startsWith($navbarLogo, 'content/')) {
-            $navbarLogoUrl = asset('storage/' . $navbarLogo);
-        } else {
-            $navbarLogoUrl = asset($navbarLogo);
-        }
-    } else {
-        $navbarLogoUrl = asset('images/logo-br.png');
-    }
-    
+    $navbarLogoUrl = content_image_url($navbarLogo, 'images/logo-br.png');
     $companyName = \App\Models\SiteContent::get('global.company_name', 'B&R Tecnología');
 @endphp
 <nav id="mainNavbar" class="navbar navbar-expand-lg navbar-light bg-white sticky-top" style="height: 64px; min-height: 64px; max-height: 64px;">

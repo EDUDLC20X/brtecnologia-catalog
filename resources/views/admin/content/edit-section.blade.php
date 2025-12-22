@@ -423,7 +423,7 @@
                                             $defaultImage = $content->default_value ?? null;
                                             $hasCustomImage = !empty($currentImage);
                                             $displayImage = $hasCustomImage 
-                                                ? asset('storage/' . $currentImage) 
+                                                ? content_image_url($currentImage)
                                                 : ($defaultImage ? asset($defaultImage) : null);
                                         @endphp
                                         

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\SiteContent;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -66,23 +67,45 @@ class ContentController extends Controller
                         "image_{$fieldName}" => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048'
                     ]);
 
-                    // Delete ALL old images for this content to prevent duplicates
+                    // Delete old image if exists
                     if ($content->image_path) {
-                        // Delete the current image
-                        if (Storage::disk('public')->exists($content->image_path)) {
-                            Storage::disk('public')->delete($content->image_path);
+                        // Delete from Cloudinary if it was stored there
+                        if ($content->cloudinary_public_id) {
+                            $cloudinary = app(CloudinaryService::class);
+                            $cloudinary->delete($content->cloudinary_public_id);
+                        } elseif (!str_starts_with($content->image_path, 'http')) {
+                            // Delete local file
+                            if (Storage::disk('public')->exists($content->image_path)) {
+                                Storage::disk('public')->delete($content->image_path);
+                            }
+                            $this->cleanupOrphanedImages($content->key);
                         }
-                        
-                        // Also check for any orphaned images with similar names
-                        $this->cleanupOrphanedImages($content->key);
                     }
 
-                    // Store new image with unique name based on content key
-                    $extension = $file->getClientOriginalExtension();
-                    $safeName = str_replace('.', '-', $content->key) . '-' . time() . '.' . $extension;
-                    $path = $file->storeAs('content', $safeName, 'public');
+                    // Try Cloudinary first if configured
+                    $cloudinary = app(CloudinaryService::class);
+                    $path = null;
+                    $cloudinaryPublicId = null;
                     
-                    $content->update(['image_path' => $path]);
+                    if ($cloudinary->isConfigured()) {
+                        $result = $cloudinary->upload($file, 'brtecnologia/content');
+                        if ($result) {
+                            $path = $result['url'];
+                            $cloudinaryPublicId = $result['public_id'];
+                        }
+                    }
+                    
+                    // Fallback to local storage
+                    if (!$path) {
+                        $extension = $file->getClientOriginalExtension();
+                        $safeName = str_replace('.', '-', $content->key) . '-' . time() . '.' . $extension;
+                        $path = $file->storeAs('content', $safeName, 'public');
+                    }
+                    
+                    $content->update([
+                        'image_path' => $path,
+                        'cloudinary_public_id' => $cloudinaryPublicId,
+                    ]);
                 }
             } else {
                 // Handle text/textarea/html content

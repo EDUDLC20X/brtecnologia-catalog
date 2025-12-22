@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\IdempotencyKey;
+use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Storage;
 use App\Jobs\ProductsExportJob;
 use Illuminate\Validation\Rule;
 
@@ -105,10 +107,29 @@ class ProductController extends Controller
         });
 
         if ($request->hasFile('images')) {
+            $cloudinary = app(CloudinaryService::class);
+            
             foreach ($request->file('images') as $idx => $file) {
-                $path = $file->store('products', 'public');
+                $path = null;
+                $cloudinaryPublicId = null;
+                
+                // Try Cloudinary first if configured
+                if ($cloudinary->isConfigured()) {
+                    $result = $cloudinary->upload($file, 'brtecnologia/products');
+                    if ($result) {
+                        $path = $result['url'];
+                        $cloudinaryPublicId = $result['public_id'];
+                    }
+                }
+                
+                // Fallback to local storage
+                if (!$path) {
+                    $path = $file->store('products', 'public');
+                }
+                
                 $product->images()->create([
                     'path' => $path,
+                    'cloudinary_public_id' => $cloudinaryPublicId,
                     // La última imagen subida será la principal
                     'is_main' => $idx === count($request->file('images')) - 1,
                 ]);
@@ -168,18 +189,40 @@ class ProductController extends Controller
         ]);
 
     if ($request->hasFile('images')) {
+        $cloudinary = app(CloudinaryService::class);
+        
         // Eliminar archivos y registros de imágenes previas (se reemplazan)
         foreach ($product->images as $oldImg) {
-            if ($oldImg->path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($oldImg->path);
+            // Delete from Cloudinary if it was stored there
+            if ($oldImg->cloudinary_public_id) {
+                $cloudinary->delete($oldImg->cloudinary_public_id);
+            } elseif ($oldImg->path && !str_starts_with($oldImg->path, 'http')) {
+                Storage::disk('public')->delete($oldImg->path);
             }
             $oldImg->delete();
         }
 
         foreach ($request->file('images') as $idx => $file) {
-            $path = $file->store('products', 'public');
+            $path = null;
+            $cloudinaryPublicId = null;
+            
+            // Try Cloudinary first if configured
+            if ($cloudinary->isConfigured()) {
+                $result = $cloudinary->upload($file, 'brtecnologia/products');
+                if ($result) {
+                    $path = $result['url'];
+                    $cloudinaryPublicId = $result['public_id'];
+                }
+            }
+            
+            // Fallback to local storage
+            if (!$path) {
+                $path = $file->store('products', 'public');
+            }
+            
             $product->images()->create([
                 'path' => $path,
+                'cloudinary_public_id' => $cloudinaryPublicId,
                 // La última imagen subida será la principal
                 'is_main' => $idx === count($request->file('images')) - 1,
             ]);

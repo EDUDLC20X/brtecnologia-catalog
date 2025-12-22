@@ -163,7 +163,7 @@
                             <div class="mb-3 d-flex flex-wrap gap-2">
                                 @foreach($product->images as $img)
                                     <div class="position-relative text-center" style="width:120px;">
-                                        <img src="{{ $img->url ?? asset('storage/'.$img->path) }}" alt="imagen" class="img-thumbnail" style="width:120px;height:90px;object-fit:cover;">
+                                        <img src="{{ image_url($img->path) }}" alt="imagen" class="img-thumbnail" style="width:120px;height:90px;object-fit:cover;">
                                         @if($img->is_main)
                                             <span class="badge bg-primary position-absolute" style="top:6px;left:6px;">Principal</span>
                                         @endif

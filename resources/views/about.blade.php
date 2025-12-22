@@ -41,7 +41,7 @@
             @endphp
             @if($aboutImage)
                 <div class="card shadow-sm mb-4">
-                    <img src="{{ Str::startsWith($aboutImage, 'content/') ? asset('storage/' . $aboutImage) : asset($aboutImage) }}" 
+                    <img src="{{ content_image_url($aboutImage) }}" 
                          alt="{{ $global['global.company_name'] ?? 'Nuestra Empresa' }}" 
                          class="img-fluid rounded">
                 </div>
