@@ -46,12 +46,12 @@ services:
       - key: MAIL_PORT
         value: "587"
       - key: MAIL_USERNAME
-        sync: false
+        value: "eduardodlcruz05@gmail.com"
       - key: MAIL_PASSWORD
-        sync: false
+        value: "iuciyhblmydrtxln"
       - key: MAIL_ENCRYPTION
         value: tls
       - key: MAIL_FROM_ADDRESS
-        sync: false
+        value: "eduardodlcruz05@gmail.com"
       - key: MAIL_FROM_NAME
         value: "B&R Tecnología"

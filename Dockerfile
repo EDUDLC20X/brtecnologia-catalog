@@ -41,9 +41,10 @@ RUN mkdir -p storage/framework/cache/data \
 # Exponer puerto
 EXPOSE 10000
 
-# Comando de inicio - FRESH MIGRATION para limpiar BD
+# Comando de inicio
 CMD php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
-    php artisan migrate:fresh --seed --force && \
+    php artisan migrate --force && \
+    php artisan db:seed --force && \
     php -S 0.0.0.0:${PORT:-10000} -t public
