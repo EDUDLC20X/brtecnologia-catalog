@@ -33,9 +33,6 @@ Route::get('/about', function () { return view('about'); })->name('about');
 Route::get('/contact', [ContactController::class, 'show'])->name('contact');
 Route::post('/contact/send', [ContactController::class, 'send'])->middleware('throttle:contact')->name('contact.send');
 
-// API docs
-Route::get('/api/docs/ui', function () { return view('api.docs'); })->name('api.docs.ui');
-
 // Ruta para crear productos (API/tests)
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 
