@@ -200,6 +200,26 @@
             accent-color: var(--admin-accent);
         }
 
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.2s ease;
+        }
+
+        .password-toggle:hover {
+            color: var(--admin-accent);
+        }
+
         .forgot-link {
             color: var(--admin-accent);
             text-decoration: none;
@@ -366,6 +386,9 @@
                                 class="form-control @error('password') is-invalid @enderror"
                                 placeholder="••••••••"
                                 required>
+                            <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Mostrar contraseña">
+                                <i class="bi bi-eye" id="toggleIcon"></i>
+                            </button>
                         </div>
                         @error('password')
                             <div class="error-text"><i class="bi bi-exclamation-circle"></i> {{ $message }}</div>
@@ -403,5 +426,22 @@
             © {{ date('Y') }} <a href="{{ route('home') }}">B&R Tecnología</a> — Machala, Ecuador
         </div>
     </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('toggleIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        }
+    </script>
 </body>
 </html>
