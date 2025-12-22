@@ -11,14 +11,12 @@ class CloudinaryService
     protected $cloudName;
     protected $apiKey;
     protected $apiSecret;
-    protected $uploadPreset;
 
     public function __construct()
     {
         $this->cloudName = config('services.cloudinary.cloud_name');
         $this->apiKey = config('services.cloudinary.api_key');
         $this->apiSecret = config('services.cloudinary.api_secret');
-        $this->uploadPreset = config('services.cloudinary.upload_preset', 'ml_default');
     }
 
     /**
@@ -26,7 +24,17 @@ class CloudinaryService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->cloudName) && !empty($this->apiKey) && !empty($this->apiSecret);
+        $configured = !empty($this->cloudName) && !empty($this->apiKey) && !empty($this->apiSecret);
+        
+        if (!$configured) {
+            Log::info('Cloudinary config check', [
+                'cloud_name' => $this->cloudName ? 'SET' : 'NOT SET',
+                'api_key' => $this->apiKey ? 'SET' : 'NOT SET',
+                'api_secret' => $this->apiSecret ? 'SET' : 'NOT SET',
+            ]);
+        }
+        
+        return $configured;
     }
 
     /**
@@ -45,26 +53,45 @@ class CloudinaryService
 
         try {
             $timestamp = time();
+            
+            // Parameters for signature (alphabetically sorted)
             $params = [
                 'folder' => $folder,
                 'timestamp' => $timestamp,
             ];
 
-            // Generate signature
+            // Generate signature - Cloudinary requires specific format
             $signature = $this->generateSignature($params);
 
-            $response = Http::asMultipart()
-                ->timeout(60)
+            Log::info('Cloudinary upload attempt', [
+                'cloud_name' => $this->cloudName,
+                'folder' => $folder,
+                'timestamp' => $timestamp,
+                'file_name' => $file->getClientOriginalName(),
+                'file_size' => $file->getSize(),
+            ]);
+
+            // Use base64 encoding for the file
+            $fileContent = base64_encode(file_get_contents($file->getPathname()));
+            $mimeType = $file->getMimeType();
+            $base64File = "data:{$mimeType};base64,{$fileContent}";
+
+            $response = Http::asForm()
+                ->timeout(120)
                 ->post("https://api.cloudinary.com/v1_1/{$this->cloudName}/image/upload", [
-                    ['name' => 'file', 'contents' => fopen($file->getPathname(), 'r'), 'filename' => $file->getClientOriginalName()],
-                    ['name' => 'api_key', 'contents' => $this->apiKey],
-                    ['name' => 'timestamp', 'contents' => $timestamp],
-                    ['name' => 'signature', 'contents' => $signature],
-                    ['name' => 'folder', 'contents' => $folder],
+                    'file' => $base64File,
+                    'api_key' => $this->apiKey,
+                    'timestamp' => $timestamp,
+                    'signature' => $signature,
+                    'folder' => $folder,
                 ]);
 
             if ($response->successful()) {
                 $data = $response->json();
+                Log::info('Cloudinary upload successful', [
+                    'public_id' => $data['public_id'],
+                    'url' => $data['secure_url'],
+                ]);
                 return [
                     'url' => $data['secure_url'],
                     'public_id' => $data['public_id'],
@@ -80,6 +107,7 @@ class CloudinaryService
         } catch (\Exception $e) {
             Log::error('Cloudinary upload exception', [
                 'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
             ]);
             return null;
         }
@@ -125,11 +153,20 @@ class CloudinaryService
 
     /**
      * Generate signature for Cloudinary API
+     * Cloudinary requires: sha1(params_string + api_secret)
+     * where params_string is "key1=value1&key2=value2" (sorted alphabetically, no URL encoding)
      */
     protected function generateSignature(array $params): string
     {
         ksort($params);
-        $stringToSign = http_build_query($params) . $this->apiSecret;
+        
+        // Build string without URL encoding
+        $parts = [];
+        foreach ($params as $key => $value) {
+            $parts[] = "{$key}={$value}";
+        }
+        $stringToSign = implode('&', $parts) . $this->apiSecret;
+        
         return sha1($stringToSign);
     }
 
