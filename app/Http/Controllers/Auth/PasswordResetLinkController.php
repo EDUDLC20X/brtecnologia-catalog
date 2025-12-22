@@ -30,17 +30,32 @@ class PasswordResetLinkController extends Controller
             'email' => ['required', 'email'],
         ]);
 
+        Log::info('=== PASSWORD RESET: Iniciando envío ===', [
+            'email' => $request->email,
+            'mail_config' => \App\Services\MailService::getMailConfig(),
+        ]);
+
         try {
             // Enviar enlace de recuperación
             $status = Password::sendResetLink(
                 $request->only('email')
             );
 
+            Log::info('=== PASSWORD RESET: Resultado ===', [
+                'status' => $status,
+                'status_name' => $status == Password::RESET_LINK_SENT ? 'SENT' : 'FAILED',
+            ]);
+
             return $status == Password::RESET_LINK_SENT
                         ? back()->with('status', 'Si el correo existe, recibirás un enlace de recuperación.')
                         : back()->with('status', 'Si el correo existe, recibirás un enlace de recuperación.');
         } catch (\Exception $e) {
-            Log::error('Error enviando correo de recuperación: ' . $e->getMessage());
+            Log::error('=== PASSWORD RESET: Error ===', [
+                'email' => $request->email,
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             
             // No revelar si el correo existe o no por seguridad
             return back()->with('status', 'Si el correo existe, recibirás un enlace de recuperación.');

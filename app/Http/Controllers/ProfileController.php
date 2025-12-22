@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\EmailChangeVerification;
+use App\Services\MailService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -79,18 +80,14 @@ class ProfileController extends Controller
         // Generar URL de verificación
         $verificationUrl = route('profile.verify-email-change', ['token' => $token]);
 
-        // Enviar correo de verificación al nuevo email
-        try {
-            Log::info('Intentando enviar correo de verificación a: ' . $newEmail);
-            
-            Mail::to($newEmail)->send(new EmailChangeVerification(
-                $user->name,
-                $newEmail,
-                $verificationUrl
-            ));
-            
-            Log::info('Correo de verificación enviado exitosamente a: ' . $newEmail);
-        } catch (\Exception $e) {
+        // Enviar correo de verificación al nuevo email usando MailService
+        $result = MailService::send(
+            $newEmail,
+            new EmailChangeVerification($user->name, $newEmail, $verificationUrl),
+            'email-change-verification'
+        );
+        
+        if (!$result['success']) {
             // Si falla el envío, limpiar datos pendientes
             $user->update([
                 'pending_email' => null,
@@ -98,18 +95,7 @@ class ProfileController extends Controller
                 'email_change_requested_at' => null,
             ]);
             
-            Log::error('Error enviando correo de verificación', [
-                'to' => $newEmail,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'mail_config' => [
-                    'mailer' => config('mail.default'),
-                    'host' => config('mail.mailers.smtp.host'),
-                    'port' => config('mail.mailers.smtp.port'),
-                    'username' => config('mail.mailers.smtp.username') ? 'SET' : 'NOT SET',
-                    'password' => config('mail.mailers.smtp.password') ? 'SET' : 'NOT SET',
-                ]
-            ]);
+            Log::error('Error enviando correo de verificación de cambio de email', $result);
             
             return Redirect::route('profile.edit')
                 ->withErrors(['email' => 'No se pudo enviar el correo de verificación. Intenta más tarde.']);

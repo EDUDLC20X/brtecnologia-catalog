@@ -66,6 +66,43 @@ Route::middleware(['auth', 'admin'])->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
     
+    // Diagnóstico de Mail (solo admin)
+    Route::get('/admin/mail-diagnostic', function () {
+        $config = \App\Services\MailService::getMailConfig();
+        $testResult = \App\Services\MailService::testConnection();
+        
+        return response()->json([
+            'status' => 'Mail Diagnostic',
+            'timestamp' => now()->toDateTimeString(),
+            'environment' => app()->environment(),
+            'config' => $config,
+            'connection_test' => $testResult,
+        ]);
+    })->name('admin.mail-diagnostic');
+    
+    // Enviar correo de prueba (solo admin)
+    Route::post('/admin/mail-test', function (\Illuminate\Http\Request $request) {
+        $email = $request->input('email', config('mail.from.address'));
+        
+        $result = \App\Services\MailService::send(
+            $email,
+            new \App\Mail\ContactConfirmationMail([
+                'name' => 'Test Admin',
+                'email' => $email,
+                'subject' => 'Prueba de correo',
+                'message' => 'Este es un correo de prueba del sistema.',
+                'sent_at' => now()->toDateTimeString(),
+            ]),
+            'admin-mail-test'
+        );
+        
+        return response()->json([
+            'status' => 'Mail Test',
+            'to' => $email,
+            'result' => $result,
+        ]);
+    })->name('admin.mail-test');
+    
     // Categorías
     Route::get('/admin/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
     Route::get('/admin/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
