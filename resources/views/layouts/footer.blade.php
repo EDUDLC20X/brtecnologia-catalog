@@ -8,6 +8,10 @@
         
         // Número de WhatsApp (extraer solo dígitos del teléfono)
         $whatsappNumber = preg_replace('/[^0-9]/', '', $contactPhone);
+        
+        // Logo del footer desde CMS
+        $footerLogo = \App\Models\SiteContent::get('global.logo_white');
+        $footerLogoUrl = content_image_url($footerLogo, 'images/logo-white.png');
     @endphp
     <div class="container-xl">
         <!-- Footer Top -->
@@ -16,7 +20,7 @@
                 <!-- About Section -->
                 <div class="col-md-3 col-lg-3">
                     <a href="{{ route('home') }}" class="d-block mb-3">
-                        <img src="{{ asset('images/logo-white.png') }}" 
+                        <img src="{{ $footerLogoUrl }}" 
                              alt="B&R Tecnología" 
                              class="footer-logo"
                              style="max-height: 55px; max-width: 180px; width: auto; height: auto; object-fit: contain;"

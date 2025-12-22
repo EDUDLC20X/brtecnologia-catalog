@@ -107,10 +107,10 @@
                 <div class="col-md-6 col-lg-3">
                     <div class="product-card">
                         <div class="product-image">
-                            @if(isset($product->mainImage) && $product->mainImage)
-                                <img src="{{ $product->mainImage->url }}" alt="{{ $product->name }}" loading="lazy">
-                            @elseif($product->images && $product->images->count())
-                                <img src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" loading="lazy">
+                            @if(isset($product->mainImage) && $product->mainImage && $product->mainImage->path)
+                                <img src="{{ image_url($product->mainImage->path) }}" alt="{{ $product->name }}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'color: #ccc; font-size: 3rem;\'><i class=\'bi bi-image\'></i></div>';">
+                            @elseif($product->images && $product->images->count() && $product->images->first()->path)
+                                <img src="{{ image_url($product->images->first()->path) }}" alt="{{ $product->name }}" loading="lazy" onerror="this.onerror=null; this.parentElement.innerHTML='<div style=\'color: #ccc; font-size: 3rem;\'><i class=\'bi bi-image\'></i></div>';">
                             @else
                                 <div style="color: #ccc; font-size: 3rem;"><i class="bi bi-image"></i></div>
                             @endif

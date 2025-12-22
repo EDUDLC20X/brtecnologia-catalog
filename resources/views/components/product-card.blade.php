@@ -3,12 +3,14 @@
 <div class="card h-100 shadow-sm border-0 overflow-hidden hover-card" style="transition: all 0.3s ease;">
     <!-- Image Container -->
     <div class="position-relative bg-light" style="height: 220px; overflow: hidden;">
-        @if(isset($product->mainImage) && $product->mainImage)
-            <img src="{{ $product->mainImage->url }}" alt="{{ $product->name }}" 
-                 class="img-fluid h-100 w-100" style="object-fit: cover; transition: transform 0.3s ease;">
-        @elseif($product->images && $product->images->count())
-            <img src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" 
-                 class="img-fluid h-100 w-100" style="object-fit: cover; transition: transform 0.3s ease;">
+        @if(isset($product->mainImage) && $product->mainImage && $product->mainImage->path)
+            <img src="{{ image_url($product->mainImage->path) }}" alt="{{ $product->name }}" 
+                 class="img-fluid h-100 w-100" style="object-fit: cover; transition: transform 0.3s ease;"
+                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'d-flex align-items-center justify-content-center h-100 text-muted\'><i class=\'bi bi-image\' style=\'font-size: 3rem;\'></i></div>';">
+        @elseif($product->images && $product->images->count() && $product->images->first()->path)
+            <img src="{{ image_url($product->images->first()->path) }}" alt="{{ $product->name }}" 
+                 class="img-fluid h-100 w-100" style="object-fit: cover; transition: transform 0.3s ease;"
+                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'d-flex align-items-center justify-content-center h-100 text-muted\'><i class=\'bi bi-image\' style=\'font-size: 3rem;\'></i></div>';">
         @else
             <div class="d-flex align-items-center justify-content-center h-100 text-muted">
                 <i class="bi bi-image" style="font-size: 3rem;"></i>

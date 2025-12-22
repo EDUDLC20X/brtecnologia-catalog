@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect fill="#f8f9fa" width="400" height="400"/>
+  <g fill="#dee2e6">
+    <path d="M200 100c-33.137 0-60 26.863-60 60v40c0 33.137 26.863 60 60 60s60-26.863 60-60v-40c0-33.137-26.863-60-60-60zm40 100c0 22.091-17.909 40-40 40s-40-17.909-40-40v-40c0-22.091 17.909-40 40-40s40 17.909 40 40v40z"/>
+    <path d="M280 280H120c-11.046 0-20 8.954-20 20v20h200v-20c0-11.046-8.954-20-20-20z"/>
+    <circle cx="160" cy="140" r="15"/>
+    <path d="M260 180l-40-40-60 60-20-20-40 40v60h160z"/>
+  </g>
+  <text x="200" y="360" text-anchor="middle" fill="#6c757d" font-family="Arial, sans-serif" font-size="16">Sin imagen</text>
+</svg>

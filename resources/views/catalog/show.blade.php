@@ -4,7 +4,7 @@
 
 @section('seo')
 @php
-    $productImage = $product->mainImage?->url ?? ($product->images->first()?->url ?? asset('images/no-image.png'));
+    $productImage = $product->mainImage ? image_url($product->mainImage->path) : ($product->images->first() ? image_url($product->images->first()->path) : asset('images/no-image.png'));
     $availability = ($product->stock_available ?? 0) > 0 ? 'InStock' : 'OutOfStock';
 @endphp
 <x-seo-meta 
@@ -29,18 +29,15 @@
         <div class="col-lg-6">
             <div class="product-gallery">
                 @php
-                    // Only include images that actually exist in public storage
-                    $imgs = $product->images->filter(function($img){
-                        $url = $img->url ?? '';
-                        return $url && file_exists(public_path(ltrim($url, '/')));
-                    })->values();
+                    // Get all images with valid paths
+                    $imgs = $product->images->filter(fn($img) => !empty($img->path))->values();
                 @endphp
                 @if($imgs->count())
                     <div id="productCarousel" class="carousel slide carousel-fade" data-bs-ride="false">
                         <div class="carousel-inner">
                             @foreach($imgs as $idx => $img)
                                 <div class="carousel-item {{ $idx===0 ? 'active' : '' }}">
-                                    <img src="{{ $img->url }}" class="d-block w-100 img-fluid" loading="lazy" alt="{{ $product->name }}">
+                                    <img src="{{ image_url($img->path) }}" class="d-block w-100 img-fluid" loading="lazy" alt="{{ $product->name }}" onerror="this.onerror=null; this.src='{{ asset('images/no-image.png') }}';">
                                 </div>
                             @endforeach
                         </div>
@@ -49,13 +46,16 @@
                     <div class="product-thumbs d-flex gap-2 mt-3">
                         @foreach($imgs as $idx => $img)
                             <button class="thumb-btn btn p-0 border {{ $idx===0 ? 'active' : '' }}" data-bs-target="#productCarousel" data-bs-slide-to="{{ $idx }}" aria-label="Ir a imagen {{ $idx+1 }}">
-                                <img src="{{ $img->url }}" alt="thumb-{{ $idx }}" style="height:64px; object-fit:contain;" loading="lazy">
+                                <img src="{{ image_url($img->path) }}" alt="thumb-{{ $idx }}" style="height:64px; object-fit:contain;" loading="lazy" onerror="this.style.display='none';">
                             </button>
                         @endforeach
                     </div>
                 @else
                     <div class="product-main-image mb-3">
-                        <div class="br-no-image p-5 text-center">Sin imagen</div>
+                        <div class="br-no-image p-5 text-center bg-light rounded">
+                            <i class="bi bi-image fs-1 text-muted"></i>
+                            <p class="text-muted mt-2 mb-0">Sin imagen</p>
+                        </div>
                     </div>
                 @endif
             </div>
@@ -132,13 +132,13 @@
                     <div class="br-product-card p-2">
                         <a href="{{ route('catalog.show', $rp) }}" class="text-decoration-none text-reset">
                             <div class="br-product-media text-center p-3" style="height:140px;">
-                                                @php
-                                                    $rsrc = $rp->mainImage->url ?? null;
-                                                    $rfs = $rsrc ? public_path(ltrim($rsrc, '/')) : null;
-                                                @endphp
-                                                @if($rsrc && file_exists($rfs))
-                                                    <img src="{{ $rsrc }}" alt="{{ $rp->name }}" style="max-height:120px; object-fit:contain;">
-                                                @endif
+                                @if($rp->mainImage && $rp->mainImage->path)
+                                    <img src="{{ image_url($rp->mainImage->path) }}" alt="{{ $rp->name }}" style="max-height:120px; object-fit:contain;" onerror="this.style.display='none';">
+                                @elseif($rp->images->count() && $rp->images->first()->path)
+                                    <img src="{{ image_url($rp->images->first()->path) }}" alt="{{ $rp->name }}" style="max-height:120px; object-fit:contain;" onerror="this.style.display='none';">
+                                @else
+                                    <i class="bi bi-image fs-1 text-muted"></i>
+                                @endif
                             </div>
                             <div class="br-product-body p-2">
                                 <div class="br-product-title small">{{ Str::limit($rp->name, 50) }}</div>
@@ -247,7 +247,7 @@ document.addEventListener('DOMContentLoaded', function(){
                     <div class="carousel-inner">
                                 @foreach($imgs as $idx => $img)
                                     <div class="carousel-item {{ $idx===0 ? 'active' : '' }}">
-                                        <img src="{{ $img->url }}" class="d-block w-100 img-fluid" style="object-fit:contain; max-height:90vh;" loading="lazy" alt="">
+                                        <img src="{{ image_url($img->path) }}" class="d-block w-100 img-fluid" style="object-fit:contain; max-height:90vh;" loading="lazy" alt="">
                                     </div>
                                 @endforeach
                     </div>
