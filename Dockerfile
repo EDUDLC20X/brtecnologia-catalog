@@ -41,8 +41,10 @@ RUN mkdir -p storage/framework/cache/data \
 # Exponer puerto
 EXPOSE 10000
 
-# Comando de inicio
-CMD php artisan config:cache && \
+# Comando de inicio - IMPORTANTE: config:clear antes de cache para usar env vars de Render
+CMD php artisan config:clear && \
+    php artisan cache:clear && \
+    php artisan config:cache && \
     php artisan route:cache && \
     php artisan view:cache && \
     php artisan migrate --force && \
