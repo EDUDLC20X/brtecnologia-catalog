@@ -1,0 +1,461 @@
+/**
+ * Estilos de Accesibilidad y Legibilidad - B&R Tecnología
+ * Mejoras para visibilidad, contraste y usabilidad
+ */
+
+/* ===========================================
+   1. TIPOGRAFÍA Y LEGIBILIDAD BASE
+   =========================================== */
+
+/* Tamaño mínimo de fuente para legibilidad */
+body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #1a1a1a;
+}
+
+/* Textos pequeños más legibles */
+.small, small, .text-muted {
+    font-size: 0.875rem !important;
+    line-height: 1.5;
+}
+
+/* Asegurar contraste mínimo en textos secundarios */
+.text-muted {
+    color: #4a5568 !important; /* Más oscuro que el default para mejor contraste */
+}
+
+/* Subtítulos y descripciones */
+.text-secondary {
+    color: #374151 !important;
+}
+
+/* ===========================================
+   2. BOTONES - VISIBILIDAD Y ACCESIBILIDAD
+   =========================================== */
+
+/* Tamaño mínimo táctil (44x44px recomendado WCAG) */
+.btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.625rem 1.25rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+/* Botones pequeños pero aún accesibles */
+.btn-sm {
+    min-height: 36px;
+    min-width: 36px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+/* Botón primario - Alto contraste */
+.btn-primary {
+    background-color: #0f2744;
+    border-color: #0f2744;
+    color: #ffffff;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #1a3a5c;
+    border-color: #1a3a5c;
+    box-shadow: 0 4px 12px rgba(15, 39, 68, 0.3);
+}
+
+/* Botón de éxito - Claramente verde */
+.btn-success {
+    background-color: #059669;
+    border-color: #059669;
+}
+
+.btn-success:hover, .btn-success:focus {
+    background-color: #047857;
+    border-color: #047857;
+}
+
+/* Botón de peligro - Claramente rojo */
+.btn-danger {
+    background-color: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-danger:hover, .btn-danger:focus {
+    background-color: #b91c1c;
+    border-color: #b91c1c;
+}
+
+/* Outline buttons con mejor visibilidad */
+.btn-outline-primary {
+    color: #0f2744;
+    border-color: #0f2744;
+    border-width: 2px;
+}
+
+.btn-outline-primary:hover {
+    background-color: #0f2744;
+    color: #ffffff;
+}
+
+.btn-outline-secondary {
+    color: #374151;
+    border-color: #9ca3af;
+    border-width: 2px;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #f3f4f6;
+    color: #1f2937;
+    border-color: #6b7280;
+}
+
+/* ===========================================
+   3. FORMULARIOS - INPUTS CLARAMENTE VISIBLES
+   =========================================== */
+
+.form-control, .form-select {
+    min-height: 44px;
+    padding: 0.625rem 0.875rem;
+    font-size: 1rem;
+    border: 2px solid #d1d5db;
+    border-radius: 8px;
+    background-color: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: #9ca3af;
+}
+
+/* Labels claros */
+.form-label, label {
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* File inputs más visibles */
+input[type="file"].form-control {
+    padding: 0.5rem;
+    cursor: pointer;
+}
+
+input[type="file"].form-control::file-selector-button {
+    padding: 0.5rem 1rem;
+    margin-right: 1rem;
+    background-color: #0f2744;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+input[type="file"].form-control::file-selector-button:hover {
+    background-color: #1a3a5c;
+}
+
+/* ===========================================
+   4. ALERTAS Y MENSAJES - CLARAMENTE VISIBLES
+   =========================================== */
+
+.alert {
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    border-width: 0;
+    border-left-width: 4px;
+}
+
+.alert-success {
+    background-color: #dcfce7;
+    border-color: #16a34a;
+    color: #166534;
+}
+
+.alert-danger, .alert-error {
+    background-color: #fee2e2;
+    border-color: #dc2626;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    border-color: #d97706;
+    color: #92400e;
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    border-color: #3b82f6;
+    color: #1e40af;
+}
+
+/* Iconos en alertas */
+.alert i {
+    font-size: 1.25rem;
+    margin-right: 0.5rem;
+}
+
+/* ===========================================
+   5. TARJETAS - SOMBRAS Y BORDES CLAROS
+   =========================================== */
+
+.card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+    background-color: #f9fafb;
+    border-bottom: 1px solid #e5e7eb;
+    font-weight: 600;
+    padding: 1rem 1.25rem;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+/* ===========================================
+   6. BADGES Y ETIQUETAS - LEGIBLES
+   =========================================== */
+
+.badge {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+}
+
+.badge.bg-primary {
+    background-color: #0f2744 !important;
+}
+
+.badge.bg-success {
+    background-color: #059669 !important;
+}
+
+.badge.bg-danger {
+    background-color: #dc2626 !important;
+}
+
+.badge.bg-warning {
+    background-color: #d97706 !important;
+    color: #ffffff !important;
+}
+
+/* ===========================================
+   7. ENLACES - CLARAMENTE IDENTIFICABLES
+   =========================================== */
+
+a {
+    color: #2563eb;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: #1d4ed8;
+    text-decoration: underline;
+}
+
+/* Enlaces en navegación */
+.nav-link {
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+}
+
+/* ===========================================
+   8. TABLAS - LÍNEAS CLARAS
+   =========================================== */
+
+.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table th {
+    background-color: #f3f4f6;
+    font-weight: 600;
+    color: #1f2937;
+    padding: 0.875rem 1rem;
+    border-bottom: 2px solid #d1d5db;
+}
+
+.table td {
+    padding: 0.875rem 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+/* ===========================================
+   9. ICONOS - TAMAÑO MÍNIMO VISIBLE
+   =========================================== */
+
+.bi {
+    font-size: 1rem;
+}
+
+/* Iconos en botones - alineación */
+.btn .bi {
+    font-size: 1.1rem;
+    vertical-align: -0.125em;
+}
+
+/* ===========================================
+   10. FOCUS VISIBLE - ACCESIBILIDAD TECLADO
+   =========================================== */
+
+:focus-visible {
+    outline: 3px solid #3b82f6;
+    outline-offset: 2px;
+}
+
+/* No mostrar outline en clicks pero sí en navegación teclado */
+:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* ===========================================
+   11. ADMIN ESPECÍFICO - CMS
+   =========================================== */
+
+/* Contenedores de imagen más claros */
+.image-manager {
+    background: #ffffff;
+    border: 2px dashed #d1d5db;
+    border-radius: 12px;
+    padding: 1.5rem;
+}
+
+.image-manager.has-image {
+    border-style: solid;
+    border-color: #10b981;
+}
+
+/* Preview de imagen con borde claro */
+.image-preview {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+}
+
+/* Indicadores de estado claros */
+.image-status-badge {
+    font-weight: 700;
+    padding: 0.375rem 0.75rem;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.image-status-badge.custom {
+    background-color: #10b981;
+    color: white;
+}
+
+.image-status-badge.default {
+    background-color: #6b7280;
+    color: white;
+}
+
+/* Indicadores de acción */
+.image-action-indicator {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.image-action-indicator.replace {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 2px solid #f59e0b;
+}
+
+.image-action-indicator.new {
+    background-color: #dcfce7;
+    color: #166534;
+    border: 2px solid #22c55e;
+}
+
+/* ===========================================
+   12. RESPONSIVE - MÓVIL PRIMERO
+   =========================================== */
+
+@media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+    
+    .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+    
+    .btn-group .btn {
+        width: auto;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+}
+
+/* ===========================================
+   13. ALTO CONTRASTE (PREFERENCIA USUARIO)
+   =========================================== */
+
+@media (prefers-contrast: high) {
+    body {
+        color: #000000;
+    }
+    
+    .btn-primary {
+        background-color: #000000;
+        border-color: #000000;
+    }
+    
+    .form-control, .form-select {
+        border-color: #000000;
+        border-width: 2px;
+    }
+    
+    a {
+        color: #0000ee;
+        text-decoration: underline;
+    }
+}
+
+/* ===========================================
+   14. REDUCIR MOVIMIENTO (ACCESIBILIDAD)
+   =========================================== */
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

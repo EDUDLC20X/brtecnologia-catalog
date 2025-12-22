@@ -7,9 +7,20 @@ use App\Models\SiteContent;
 use App\Services\CloudinaryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 
 class ContentController extends Controller
 {
+    /**
+     * Tamaño máximo de imagen en bytes (2MB)
+     */
+    private const MAX_IMAGE_SIZE = 2 * 1024 * 1024;
+    
+    /**
+     * Formatos de imagen permitidos
+     */
+    private const ALLOWED_FORMATS = ['jpeg', 'jpg', 'png', 'gif', 'webp'];
+
     /**
      * Display all site content for editing
      */
@@ -53,6 +64,7 @@ class ContentController extends Controller
     public function updateSection(Request $request, string $section)
     {
         $contents = SiteContent::where('section', $section)->get();
+        $errors = [];
 
         foreach ($contents as $content) {
             $fieldName = str_replace('.', '_', $content->key);
@@ -62,14 +74,33 @@ class ContentController extends Controller
                 if ($request->hasFile("image_{$fieldName}")) {
                     $file = $request->file("image_{$fieldName}");
                     
-                    // Validate image
-                    $validated = $request->validate([
-                        "image_{$fieldName}" => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048'
-                    ]);
+                    // Validar formato
+                    $extension = strtolower($file->getClientOriginalExtension());
+                    if (!in_array($extension, self::ALLOWED_FORMATS)) {
+                        $errors[] = "'{$content->label}': Formato no válido. Use: " . implode(', ', self::ALLOWED_FORMATS);
+                        continue;
+                    }
+                    
+                    // Validar tamaño
+                    if ($file->getSize() > self::MAX_IMAGE_SIZE) {
+                        $errors[] = "'{$content->label}': La imagen excede el tamaño máximo de 2MB";
+                        continue;
+                    }
+                    
+                    // Validar que sea una imagen real
+                    if (!$file->isValid() || !getimagesize($file->getRealPath())) {
+                        $errors[] = "'{$content->label}': El archivo no es una imagen válida";
+                        continue;
+                    }
 
                     // Guardar referencias de imagen anterior para eliminar después
                     $oldImagePath = $content->image_path;
                     $oldCloudinaryId = $content->cloudinary_public_id;
+                    
+                    Log::info("Procesando imagen para: {$content->key}", [
+                        'old_path' => $oldImagePath,
+                        'old_cloudinary_id' => $oldCloudinaryId,
+                    ]);
 
                     // Try Cloudinary first if configured
                     $cloudinary = app(CloudinaryService::class);
@@ -81,14 +112,19 @@ class ContentController extends Controller
                         if ($result) {
                             $path = $result['url'];
                             $cloudinaryPublicId = $result['public_id'];
+                            Log::info("Imagen subida a Cloudinary: {$cloudinaryPublicId}");
                         }
                     }
                     
                     // Fallback to local storage
                     if (!$path) {
-                        $extension = $file->getClientOriginalExtension();
-                        $safeName = str_replace('.', '-', $content->key) . '-' . time() . '.' . $extension;
+                        // Primero eliminar archivo local anterior si existe
+                        $this->deleteLocalImage($content->key);
+                        
+                        // Guardar nuevo archivo con nombre único basado en el key
+                        $safeName = str_replace('.', '-', $content->key) . '.' . $extension;
                         $path = $file->storeAs('content', $safeName, 'public');
+                        Log::info("Imagen guardada localmente: {$path}");
                     }
                     
                     // Actualizar con nueva imagen
@@ -97,21 +133,11 @@ class ContentController extends Controller
                         'cloudinary_public_id' => $cloudinaryPublicId,
                     ]);
 
-                    // AHORA eliminar imagen anterior (después de guardar la nueva)
-                    if ($oldImagePath) {
-                        if ($oldCloudinaryId) {
-                            // Eliminar de Cloudinary
-                            $cloudinary->delete($oldCloudinaryId);
-                        } elseif (!str_starts_with($oldImagePath, 'http')) {
-                            // Eliminar archivo local
-                            if (Storage::disk('public')->exists($oldImagePath)) {
-                                Storage::disk('public')->delete($oldImagePath);
-                            }
-                        }
+                    // AHORA eliminar imagen anterior de Cloudinary (después de guardar la nueva)
+                    if ($oldCloudinaryId && $oldCloudinaryId !== $cloudinaryPublicId) {
+                        $cloudinary->delete($oldCloudinaryId);
+                        Log::info("Imagen anterior eliminada de Cloudinary: {$oldCloudinaryId}");
                     }
-                    
-                    // Limpiar otras imágenes huérfanas del mismo content key
-                    $this->cleanupOrphanedImages($content->key, $path);
                 }
             } else {
                 // Handle text/textarea/html content
@@ -131,26 +157,30 @@ class ContentController extends Controller
         // Clear cache for the section
         SiteContent::clearCache();
 
+        if (!empty($errors)) {
+            return redirect()->route('admin.content.section', $section)
+                ->with('warning', 'Algunos cambios se guardaron, pero hubo errores:')
+                ->withErrors($errors);
+        }
+
         return redirect()->route('admin.content.section', $section)
             ->with('success', 'Contenido actualizado correctamente');
     }
 
     /**
-     * Clean up orphaned images for a content key (excluding current image)
+     * Eliminar imagen local para un content key específico
      */
-    private function cleanupOrphanedImages(string $contentKey, ?string $currentPath = null): void
+    private function deleteLocalImage(string $contentKey): void
     {
         $prefix = str_replace('.', '-', $contentKey);
         $files = Storage::disk('public')->files('content');
         
-        // Obtener solo el nombre del archivo actual para excluirlo
-        $currentFilename = $currentPath ? basename($currentPath) : null;
-        
         foreach ($files as $file) {
             $filename = basename($file);
-            // Eliminar solo si coincide con el prefijo Y no es la imagen actual
-            if (str_starts_with($filename, $prefix) && $filename !== $currentFilename) {
+            // Eliminar si coincide con el prefijo (mismo content key)
+            if (str_starts_with($filename, $prefix . '.')) {
                 Storage::disk('public')->delete($file);
+                Log::info("Imagen local eliminada: {$file}");
             }
         }
     }
@@ -182,15 +212,17 @@ class ContentController extends Controller
         if ($content->cloudinary_public_id) {
             $cloudinary = app(CloudinaryService::class);
             $cloudinary->delete($content->cloudinary_public_id);
+            Log::info("Imagen eliminada de Cloudinary: {$content->cloudinary_public_id}");
         }
         
         // Delete local file if exists
         if ($content->image_path && !str_starts_with($content->image_path, 'http')) {
             if (Storage::disk('public')->exists($content->image_path)) {
                 Storage::disk('public')->delete($content->image_path);
+                Log::info("Imagen local eliminada: {$content->image_path}");
             }
             // Also clean up any orphaned images
-            $this->cleanupOrphanedImages($content->key);
+            $this->deleteLocalImage($content->key);
         }
 
         $content->update([
@@ -201,7 +233,7 @@ class ContentController extends Controller
         SiteContent::clearCache();
 
         return redirect()->back()
-            ->with('success', 'Imagen eliminada, se mostrará la imagen por defecto');
+            ->with('success', 'Imagen eliminada. Se mostrará la imagen por defecto.');
     }
 
     /**

@@ -30,6 +30,8 @@
         @yield('styles')
         <!-- Site styles (cards, hero) -->
         <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+        <!-- Accessibility & Legibility improvements -->
+        <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
 
         <!-- jQuery for Select2 and plugins (no SRI to avoid integrity mismatch in some environments). -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
