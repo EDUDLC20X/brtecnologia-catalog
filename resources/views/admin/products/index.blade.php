@@ -6,6 +6,18 @@
 
 <div class="container-fluid py-4">
 
+    {{-- Aviso si Cloudinary no está configurado --}}
+    @if(!config('services.cloudinary.cloud_name') || !config('services.cloudinary.api_key'))
+        <div class="alert alert-warning alert-dismissible fade show mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>Almacenamiento de imágenes no configurado.</strong> 
+            Las imágenes subidas se perderán cuando el servidor se reinicie. 
+            <a href="https://cloudinary.com/users/register_free" target="_blank" class="alert-link">Configura Cloudinary (gratis)</a> 
+            y agrega las variables <code>CLOUDINARY_CLOUD_NAME</code>, <code>CLOUDINARY_API_KEY</code>, <code>CLOUDINARY_API_SECRET</code> en Render.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <!-- Header: title + primary action -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div class="d-flex align-items-center gap-3">
@@ -84,12 +96,20 @@
                             @foreach($products as $product)
                                 <tr>
                                     <td style="width:72px;">
-                                        @if($product->mainImage)
-                                            <img src="{{ $product->mainImage->url }}" alt="{{ $product->name }}" class="rounded" style="width:56px;height:56px;object-fit:cover;">
+                                        @if($product->mainImage && $product->mainImage->path)
+                                            <img src="{{ image_url($product->mainImage->path) }}" 
+                                                 alt="{{ $product->name }}" 
+                                                 class="rounded" 
+                                                 style="width:56px;height:56px;object-fit:cover;"
+                                                 onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22 viewBox=%220 0 56 56%22><rect fill=%22%23e9ecef%22 width=%2256%22 height=%2256%22/><text x=%2228%22 y=%2232%22 text-anchor=%22middle%22 fill=%22%236c757d%22 font-size=%2212%22>📷</text></svg>';">
                                         @elseif($product->images && $product->images->count())
-                                            <img src="{{ $product->images->first()->url }}" alt="{{ $product->name }}" class="rounded" style="width:56px;height:56px;object-fit:cover;">
+                                            <img src="{{ image_url($product->images->first()->path) }}" 
+                                                 alt="{{ $product->name }}" 
+                                                 class="rounded" 
+                                                 style="width:56px;height:56px;object-fit:cover;"
+                                                 onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2256%22 height=%2256%22 viewBox=%220 0 56 56%22><rect fill=%22%23e9ecef%22 width=%2256%22 height=%2256%22/><text x=%2228%22 y=%2232%22 text-anchor=%22middle%22 fill=%22%236c757d%22 font-size=%2212%22>📷</text></svg>';">
                                         @else
-                                            <div class="bg-light text-center rounded" style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#6c757d;">—</div>
+                                            <div class="bg-light text-center rounded" style="width:56px;height:56px;display:flex;align-items:center;justify-content:center;color:#6c757d;">📷</div>
                                         @endif
                                     </td>
                                     <td style="width:56px;">{{ $product->id }}</td>

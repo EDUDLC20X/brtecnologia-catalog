@@ -113,7 +113,8 @@
                                             @if($product->mainImage)
                                                 <img src="{{ image_url($product->mainImage->path) }}" 
                                                      alt="{{ $product->name }}"
-                                                     loading="lazy">
+                                                     loading="lazy"
+                                                     onerror="this.onerror=null; this.parentElement.innerHTML='<div class=no-image><i class=bi bi-image></i></div>';">
                                             @else
                                                 <div class="no-image">
                                                     <i class="bi bi-image"></i>
@@ -192,7 +193,8 @@
                                                 @if($product->mainImage)
                                                     <img src="{{ image_url($product->mainImage->path) }}" 
                                                          alt="{{ $product->name }}"
-                                                         loading="lazy">
+                                                         loading="lazy"
+                                                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=no-image><i class=bi bi-image></i></div>';">
                                                 @else
                                                     <div class="no-image">
                                                         <i class="bi bi-image"></i>

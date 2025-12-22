@@ -21,9 +21,10 @@
                                 loading="lazy"
                                 decoding="async"
                                 itemprop="image"
+                                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'br-no-image\'>📷</div>';"
                             >
                         @else
-                            <div class="br-no-image">Sin imagen</div>
+                            <div class="br-no-image">📷</div>
                         @endif
                     </div>
 
