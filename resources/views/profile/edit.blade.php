@@ -28,8 +28,9 @@
 
     .profile-header p {
         margin: 0.5rem 0 0;
-        opacity: 0.85;
-        font-size: 0.9rem;
+        color: rgba(255,255,255,0.95);
+        font-size: 0.95rem;
+        font-weight: 500;
     }
 
     .profile-card {

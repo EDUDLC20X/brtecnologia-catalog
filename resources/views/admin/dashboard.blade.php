@@ -190,7 +190,7 @@
     <div class="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
             <h1><i class="bi bi-speedometer2 me-2"></i>Panel de Administración</h1>
-            <small class="opacity-75">Bienvenido, {{ auth()->user()->name }}</small>
+            <small style="color: rgba(255,255,255,0.9); font-weight: 500;">Bienvenido, {{ auth()->user()->name }}</small>
         </div>
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('admin.content.index') }}" class="btn btn-light btn-sm">

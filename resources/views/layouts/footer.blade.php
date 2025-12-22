@@ -12,6 +12,11 @@
         // Logo del footer desde CMS
         $footerLogo = \App\Models\SiteContent::get('global.logo_white');
         $footerLogoUrl = content_image_url($footerLogo, 'images/logo-white.png');
+        
+        // Redes sociales desde CMS
+        $socialFacebook = \App\Models\SiteContent::get('contact.social_facebook', 'https://facebook.com');
+        $socialInstagram = \App\Models\SiteContent::get('contact.social_instagram', 'https://instagram.com');
+        $socialTwitter = \App\Models\SiteContent::get('contact.social_twitter', 'https://twitter.com');
     @endphp
     <div class="container-xl">
         <!-- Footer Top -->
@@ -30,10 +35,15 @@
                         Su herramienta de trabajo en las mejores manos. Somos su aliado tecnológico de confianza.
                     </p>
                     <div class="footer-social">
-                        <a href="#" class="social-icon"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-twitter"></i></a>
-                        <a href="#" class="social-icon"><i class="bi bi-linkedin"></i></a>
+                        @if($socialFacebook)
+                            <a href="{{ $socialFacebook }}" class="social-icon" target="_blank" rel="noopener" title="Facebook"><i class="bi bi-facebook"></i></a>
+                        @endif
+                        @if($socialInstagram)
+                            <a href="{{ $socialInstagram }}" class="social-icon" target="_blank" rel="noopener" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        @endif
+                        @if($socialTwitter)
+                            <a href="{{ $socialTwitter }}" class="social-icon" target="_blank" rel="noopener" title="Twitter"><i class="bi bi-twitter"></i></a>
+                        @endif
                     </div>
                 </div>
 
