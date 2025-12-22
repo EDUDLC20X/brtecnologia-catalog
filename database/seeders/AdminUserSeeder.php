@@ -11,19 +11,27 @@ class AdminUserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     * Crea el usuario administrador para el sistema de catálogo B&R Tecnología
      *
      * @return void
      */
     public function run()
     {
-        // Crea o actualiza un usuario administrador para desarrollo
-        User::updateOrCreate(
-            ['email' => 'admin@example.com'],
-            [
-                'name' => 'Admin',
+        // Solo crear si no existe un admin
+        if (!User::where('is_admin', true)->exists()) {
+            User::create([
+                'name' => 'Administrador B&R',
+                'email' => 'lcruz276_est@instipp.edu.ec',
                 'email_verified_at' => now(),
-                'password' => Hash::make('password'), // contraseña: password
-            ]
-        );
+                'password' => Hash::make('Admin2025BR'),
+                'is_admin' => true,
+            ]);
+            
+            $this->command->info('✅ Usuario administrador creado exitosamente');
+            $this->command->info('   Email: lcruz276_est@instipp.edu.ec');
+            $this->command->info('   Contraseña: Admin2025BR');
+        } else {
+            $this->command->info('ℹ️ Ya existe un usuario administrador');
+        }
     }
 }

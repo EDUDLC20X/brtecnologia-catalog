@@ -173,9 +173,19 @@ Route::post('/contact/send', function (Request $request) {
 // Admin routes (require auth + admin)
 use App\Http\Controllers\Admin\ContentController;
 
+use App\Http\Controllers\Admin\CategoryController;
+
 Route::middleware(['auth','admin'])->group(function () {
     // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+    
+    // Categories Management (CRUD)
+    Route::get('/admin/categories', [CategoryController::class, 'index'])->name('admin.categories.index');
+    Route::get('/admin/categories/create', [CategoryController::class, 'create'])->name('admin.categories.create');
+    Route::post('/admin/categories', [CategoryController::class, 'store'])->name('admin.categories.store');
+    Route::get('/admin/categories/{category}/edit', [CategoryController::class, 'edit'])->name('admin.categories.edit');
+    Route::put('/admin/categories/{category}', [CategoryController::class, 'update'])->name('admin.categories.update');
+    Route::delete('/admin/categories/{category}', [CategoryController::class, 'destroy'])->name('admin.categories.destroy');
     
     // Content Management (CMS)
     Route::get('/admin/content', [ContentController::class, 'index'])->name('admin.content.index');

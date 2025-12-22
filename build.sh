@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Build script para Render
+# Build script para Render - B&R Tecnología
 echo "=== Instalando dependencias de Composer ==="
 composer install --no-dev --optimize-autoloader
 
@@ -24,9 +24,14 @@ php artisan storage:link --force || true
 echo "=== Ejecutando migraciones ==="
 php artisan migrate --force
 
+echo "=== Creando usuario administrador ==="
+php artisan db:seed --class=AdminUserSeeder --force
+
 echo "=== Limpiando y cacheando configuración ==="
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
 echo "=== Build completado ==="
+echo "📧 Admin: lcruz276_est@instipp.edu.ec"
+echo "🔑 Pass: Admin2025BR""

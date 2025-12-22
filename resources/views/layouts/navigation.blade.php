@@ -46,6 +46,8 @@
                             <li><a class="dropdown-item" href="{{ route('products.create') }}"><i class="bi bi-plus-circle me-2"></i>Crear Producto</a></li>
                             <li><a class="dropdown-item" href="{{ route('products.export') }}"><i class="bi bi-file-earmark-arrow-down me-2"></i>Exportar Productos</a></li>
                             <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ route('admin.categories.index') }}"><i class="bi bi-tags me-2"></i>Gestionar Categorías</a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ route('admin.content.index') }}"><i class="bi bi-pencil-square me-2"></i>Gestión de Contenido</a></li>
                             <li><a class="dropdown-item" href="{{ route('admin.content.section', 'global') }}"><i class="bi bi-image me-2"></i>Configurar Logos</a></li>
                         </ul>

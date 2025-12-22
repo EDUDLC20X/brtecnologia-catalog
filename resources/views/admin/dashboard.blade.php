@@ -196,6 +196,9 @@
             <a href="{{ route('admin.content.index') }}" class="btn btn-light btn-sm">
                 <i class="bi bi-pencil-square me-1"></i> Contenido
             </a>
+            <a href="{{ route('admin.categories.index') }}" class="btn btn-light btn-sm">
+                <i class="bi bi-tags me-1"></i> Categorías
+            </a>
             <a href="{{ route('products.index') }}" class="btn btn-light btn-sm">
                 <i class="bi bi-box-seam me-1"></i> Productos
             </a>
