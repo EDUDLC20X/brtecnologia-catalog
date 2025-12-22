@@ -1,0 +1,188 @@
+{
+  "info": {
+    "name": "E-Commerce BR API",
+    "description": "Collection for testing API endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/products?per_page=10",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "per_page",
+                  "value": "10"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/products/search?q=laptop",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "products", "search"],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "laptop"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/products/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "products", "1"]
+            }
+          }
+        },
+        {
+          "name": "Filter by Price",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/products?price_min=100&price_max=500&sort=price_asc",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "products"],
+              "query": [
+                {
+                  "key": "price_min",
+                  "value": "100"
+                },
+                {
+                  "key": "price_max",
+                  "value": "500"
+                },
+                {
+                  "key": "sort",
+                  "value": "price_asc"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categories",
+      "item": [
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/categories",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "categories"]
+            }
+          }
+        },
+        {
+          "name": "Get Category Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "http://localhost/api/v1/categories/1/products",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "categories", "1", "products"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reviews",
+      "item": [
+        {
+          "name": "Get Product Reviews",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost/api/v1/products/1/reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "products", "1", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "Create Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": 1,\n  \"rating\": 5,\n  \"title\": \"Excelente producto\",\n  \"comment\": \"Muy satisfecho con la compra, recomiendo ampliamente\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost/api/v1/reviews",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "reviews"]
+            }
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer YOUR_TOKEN_HERE",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost/api/v1/reviews/1",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["api", "v1", "reviews", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

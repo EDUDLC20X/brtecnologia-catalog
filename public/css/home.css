@@ -1,0 +1,527 @@
+:root{
+  /* B&R Tecnología corporate palette */
+  --br-blue: #0C3B67;   /* deep navy */
+  --br-light: #2A74A8;  /* celeste / secondary */
+  --br-accent: var(--br-light);
+  --br-teal: var(--br-light);
+  --white: #FFFFFF;
+  --text: #1E1E1E;
+  --black-soft: #1E1E1E;
+  --br-muted: #f6f8fb;
+  --card-radius: 10px;
+  --card-shadow: 0 10px 30px rgba(2,6,23,0.04);
+}
+
+body{font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+
+body .hero-section{
+  background: linear-gradient(180deg, var(--br-blue) 0%, var(--br-light) 100%);
+  color: var(--white);
+  padding: 60px 20px; /* balanced vertical padding as requested */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-inner{width:100%;}
+.hero-content{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem; padding:0 12px}
+
+.hero-title{color:var(--white); font-size:2rem; margin:0}
+.hero-sub{color:rgba(255,255,255,0.92); margin-bottom:0.6rem}
+
+/* Logo Styles - Proportional and Responsive - LARGER SIZE */
+.br-logo {
+    max-width: 400px;
+    max-height: 130px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    margin-bottom: 1.5rem;
+    /* Ensure no background box appears */
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    outline: none !important;
+}
+.br-logo.dark { display: none; }
+
+/* Responsive logo sizing */
+@media (max-width: 768px) {
+    .br-logo {
+        max-width: 320px;
+        max-height: 110px;
+    }
+}
+
+@media (max-width: 576px) {
+    .br-logo {
+        max-width: 260px;
+        max-height: 90px;
+    }
+}
+
+@media (max-width: 768px){
+  .hero-content{padding:0 18px}
+  .hero-title{font-size:1.5rem}
+  .hero-sub{font-size:0.95rem}
+}
+
+.hero-left h1{font-size:2.25rem; margin:0 0 .6rem}
+.hero-left .lead{opacity:0.9;margin-bottom:1rem}
+
+.hero-search{display:flex; max-width:720px; background:var(--white); padding:6px; border-radius:8px; overflow:hidden; margin:1rem auto}
+.hero-search input{flex:1; border:0; padding:.75rem 1rem; font-size:1rem}
+.hero-search input:focus{outline:none}
+.hero-search button{background:var(--br-accent); color:white; border:0; padding:0 1rem; display:flex; align-items:center; justify-content:center}
+
+/* Hero buttons: full width on small screens, compact side-by-side on larger */
+.hero-buttons{display:flex; width:100%; max-width:420px;}
+.hero-buttons .btn-primary-br, .hero-buttons .btn-secondary-br{width:48%;}
+
+@media (max-width: 576px){
+  .hero-buttons{flex-direction:column; gap:0.5rem}
+  .hero-buttons .btn-primary-br, .hero-buttons .btn-secondary-br{width:100%; display:block}
+}
+
+.btn-primary-br{background:var(--white); color:var(--br-blue); padding:.6rem 1rem; border-radius:8px; display:inline-flex; gap:.5rem; align-items:center; text-decoration:none}
+.btn-secondary-br{background:transparent; color:var(--white); border:1px solid rgba(255,255,255,0.18); padding:.5rem .9rem; border-radius:8px; text-decoration:none}
+
+.section-title h2{margin:0}
+
+.category-card{background:var(--white); color:var(--text); padding:1.2rem; border-radius:var(--card-radius); text-align:center; box-shadow:var(--card-shadow)}
+.category-card i{font-size:1.6rem; color:var(--br-teal); margin-bottom:.6rem}
+
+.product-card{background:var(--white); border-radius:12px; overflow:hidden; box-shadow:var(--card-shadow); display:flex; flex-direction:column}
+.product-image{height:180px; display:flex; align-items:center; justify-content:center; background:var(--br-muted)}
+.product-image img{max-height:160px; max-width:100%}
+.product-info{padding:1rem; flex:1; display:flex; flex-direction:column}
+.product-name{margin:.2rem 0 .4rem}
+.product-price-main{font-weight:800; color:var(--br-blue)}
+.product-buttons{margin-top:auto; display:flex; gap:.5rem}
+.btn-view{background:transparent; border:1px solid var(--br-blue); color:var(--br-blue); padding:.4rem .6rem; border-radius:8px; text-decoration:none}
+.btn-add{background:var(--br-teal); color:white; border:0; padding:.4rem .6rem; border-radius:8px}
+
+.offer-banner{padding:1.4rem; border-radius:12px; background:linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)); border:1px solid rgba(255,255,255,0.04)}
+
+.testimonial-card{background:var(--white); padding:1rem; border-radius:10px}
+
+.info-boxes .offer-banner{color:var(--white)}
+
+/* Benefits */
+.benefits{display:flex; gap:1rem}
+.benefit{flex:1; background:var(--white); padding:1rem; border-radius:10px; display:flex; gap:1rem; align-items:center}
+.benefit i{font-size:1.8rem; color:var(--br-accent)}
+
+/* Small helpers */
+.container-xl{max-width:1200px}
+
+@media (max-width:992px){
+  .hero-left h1{font-size:1.6rem}
+}
+
+/* Layout / Grid for products to get 2-4 columns */
+.products-grid{display:grid; gap:1.25rem; grid-template-columns: repeat( auto-fit, minmax(220px, 1fr) );}
+
+/* Product card (catalog) - B&R Tecnología */
+.br-product-card{
+  background: var(--white);
+  border-radius:var(--card-radius);
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow: var(--card-shadow);
+  transition: transform .18s ease, box-shadow .18s ease;
+  border-top: 4px solid transparent;
+}
+.br-product-card:hover{transform:translateY(-6px); box-shadow: 0 20px 40px rgba(2,6,23,0.08); border-top-color: var(--br-teal)}
+.br-product-media{height:220px; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, var(--br-muted), #ffffff); position:relative}
+.br-product-media img{max-height:180px; max-width:100%; object-fit:contain; transition: transform .25s ease}
+.br-product-card:hover .br-product-media img{transform: scale(1.04)}
+.br-no-image{color:var(--text)}
+.br-product-body{padding:1rem; display:flex; flex-direction:column; gap:0.45rem; min-height:160px}
+.br-product-title{margin:0; color:var(--br-blue); font-size:1.03rem; font-weight:600}
+.br-product-rating{display:flex; align-items:center; gap:.5rem}
+.br-product-rating .stars i{color:#f59e0b; margin-right:2px; font-size:0.95rem}
+.rating-value{color:#6b7280; font-size:0.9rem}
+.br-product-price{font-weight:800; color:var(--br-blue); margin-top:0.25rem}
+.br-product-actions{margin-top:auto}
+.btn-br-more{display:inline-block; background:var(--br-blue); color:var(--white); padding:.55rem .9rem; border-radius:8px; text-decoration:none}
+.btn-br-more:hover{background:var(--br-teal); color:var(--white)}
+
+@media (max-width: 576px){
+  .br-product-media{height:150px}
+  .br-product-title{font-size:0.98rem}
+}
+
+/* Product card (catalog) - B&R Tecnología */
+.br-product-card{
+  background: var(--white);
+  border-radius:12px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow: 0 8px 26px rgba(2,6,23,0.06);
+  transition: transform .18s ease, box-shadow .18s ease;
+  border-top: 4px solid transparent;
+}
+.br-product-card:hover{transform:translateY(-6px); box-shadow: 0 20px 40px rgba(2,6,23,0.08); border-top-color: var(--br-accent)}
+.br-product-media{height:200px; display:flex; align-items:center; justify-content:center; background: linear-gradient(180deg, var(--br-muted), #ffffff);}
+.br-product-media img{max-height:160px; max-width:100%; object-fit:contain}
+.br-no-image{color:var(--text)}
+.br-product-body{padding:1rem; display:flex; flex-direction:column; gap:0.45rem; min-height:160px}
+.br-product-title{margin:0; color:var(--br-dark); font-size:1.03rem; font-weight:600}
+.br-product-rating{display:flex; align-items:center; gap:.5rem}
+.br-product-rating .stars i{color:#f59e0b; margin-right:2px; font-size:0.95rem}
+.rating-value{color:#6b7280; font-size:0.9rem}
+.br-product-price{font-weight:800; color:var(--br-dark); margin-top:0.25rem}
+.br-product-actions{margin-top:auto}
+.btn-br-more{display:inline-block; background:var(--br-dark); color:var(--white); padding:.55rem .9rem; border-radius:8px; text-decoration:none}
+.btn-br-more:hover{background:var(--br-accent); color:var(--white)}
+
+@media (max-width: 576px){
+  .br-product-media{height:150px}
+  .br-product-title{font-size:0.98rem}
+}
+
+/* Filters sidebar adjustments to match B&R look */
+.br-filters{width:100%}
+/* Ensure no extra margin to the right of filters in the sidebar column */
+.br-filters{margin-right:0}
+
+/* Desktop grid layout for catalog: full-width products (sidebar moved to offcanvas) */
+@media(min-width:992px){
+  .br-catalog-layout{display:block; gap:0}
+  .br-catalog-layout .catalog-products{width:100%; padding:0}
+  /* If a sidebar element remains, hide it on desktop to avoid layout gaps */
+  .br-catalog-layout .catalog-sidebar{display:none}
+}
+.br-filters .br-select2 .select2-selection--multiple{min-height:44px}
+.br-filters .btn-outline-secondary{border-radius:8px}
+
+/* Product detail page styles */
+.product-gallery{background:transparent}
+.product-main-image{background:var(--white); border-radius:12px; box-shadow:var(--card-shadow); padding:1rem; display:flex; align-items:center; justify-content:center}
+.product-main-image img{max-width:100%; max-height:560px; object-fit:contain; border-radius:8px}
+.product-thumbs{margin-top:.8rem}
+.thumb-btn{width:72px; height:72px; display:inline-flex; align-items:center; justify-content:center; padding:.25rem; background:var(--white); border-radius:8px}
+.thumb-btn img{max-height:100%; max-width:100%; object-fit:contain}
+.thumb-btn.active{box-shadow:0 6px 18px rgba(2,6,23,0.08); border:1px solid rgba(0,0,0,0.04)}
+
+.product-details h1{font-size:1.6rem; margin-bottom:.25rem}
+.product-details .h4{font-size:1.5rem}
+.product-details p{line-height:1.5}
+
+.btn-primary{background:var(--br-blue); border-color:var(--br-blue)}
+.btn-primary:hover{background:var(--br-teal); border-color:var(--br-teal)}
+.btn-outline-secondary{border-color:rgba(30,30,30,0.08); color:var(--text)}
+
+.card .card-body h5{color:var(--br-blue)}
+
+/* Related products grid tweaks */
+.products-grid{display:grid; gap:1rem; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));}
+.products-grid .br-product-card{padding:0; border-radius:10px; overflow:hidden}
+.products-grid .br-product-media{height:120px}
+
+/* Offcanvas search/filtros style overrides for a cleaner look */
+.offcanvas .offcanvas-header{border-bottom:1px solid rgba(0,0,0,0.04)}
+.offcanvas .offcanvas-body{padding:1rem}
+.offcanvas-top{--bs-offcanvas-height: 140px}
+
+@media (max-width: 768px){
+  .product-main-image img{max-height:320px}
+  .thumb-btn{width:56px; height:56px}
+}
+
+/* Small polish for product cards on catalog */
+.br-product-title{color:var(--br-blue)}
+.br-product-price{color:var(--br-teal); font-weight:700}
+
+/* Lightbox modal tweaks */
+.modal-fullscreen .modal-content{background:rgba(0,0,0,0.85)}
+.modal-fullscreen img{max-height:90vh; object-fit:contain}
+
+/* Request modal styles */
+#requestMessage.alert{margin-bottom:.75rem}
+
+/* ============================================
+   LEGIBILITY & ACCESSIBILITY IMPROVEMENTS
+   ============================================ */
+
+/* Typography improvements */
+:root{
+    --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+    --text-primary: #1e293b;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+}
+
+body {
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-primary);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: var(--br-blue);
+    line-height: 1.3;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.75rem; }
+h3 { font-size: 1.5rem; }
+h4 { font-size: 1.25rem; }
+h5 { font-size: 1.1rem; }
+h6 { font-size: 1rem; }
+
+p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+/* Buttons - High visibility */
+.btn {
+    font-weight: 600;
+    font-size: 0.95rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--br-blue);
+    border-color: var(--br-blue);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--br-light);
+    border-color: var(--br-light);
+    transform: translateY(-1px);
+}
+
+.btn-outline-primary {
+    color: var(--br-blue);
+    border: 2px solid var(--br-blue);
+}
+
+.btn-outline-primary:hover {
+    background: var(--br-blue);
+    color: white;
+}
+
+.btn-outline-secondary {
+    border: 2px solid #cbd5e1;
+    color: var(--text-primary);
+}
+
+.btn-outline-secondary:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* Links - Clear and visible */
+a {
+    color: var(--br-blue);
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+a:hover {
+    color: var(--br-light);
+    text-decoration: underline;
+}
+
+/* Form controls - Better readability */
+.form-control, .form-select {
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--br-blue);
+    box-shadow: 0 0 0 3px rgba(12, 59, 103, 0.15);
+}
+
+.form-label {
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+/* Cards - Clean and readable */
+.card {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.card-title {
+    font-weight: 700;
+    color: var(--br-blue);
+    font-size: 1.1rem;
+}
+
+.card-text {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+/* Alerts - High contrast */
+.alert {
+    font-size: 0.95rem;
+    border-radius: 10px;
+    border-width: 2px;
+    padding: 1rem 1.25rem;
+}
+
+.alert-success {
+    background: #dcfce7;
+    border-color: #86efac;
+    color: #166534;
+}
+
+.alert-danger {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #991b1b;
+}
+
+.alert-warning {
+    background: #fef3c7;
+    border-color: #fcd34d;
+    color: #92400e;
+}
+
+.alert-info {
+    background: #dbeafe;
+    border-color: #93c5fd;
+    color: #1e40af;
+}
+
+/* Badges - Clear visibility */
+.badge {
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.4em 0.8em;
+    border-radius: 6px;
+}
+
+/* Tables - Better readability */
+.table {
+    font-size: 0.95rem;
+}
+
+.table th {
+    font-weight: 700;
+    color: var(--br-blue);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.05em;
+}
+
+.table td {
+    color: var(--text-secondary);
+    vertical-align: middle;
+}
+
+/* Navigation - Clear links */
+.nav-link {
+    font-weight: 500;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    padding: 0.5rem 0.75rem;
+}
+
+.nav-link:hover {
+    color: var(--br-blue);
+}
+
+.nav-link.active {
+    color: var(--br-blue);
+    font-weight: 600;
+}
+
+/* Dropdown menus */
+.dropdown-menu {
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 0.5rem;
+}
+
+.dropdown-item {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+    background: #f1f5f9;
+    color: var(--br-blue);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    body { font-size: 15px; }
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    
+    .btn {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+    
+    .form-control, .form-select {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Focus states for accessibility */
+*:focus-visible {
+    outline: 3px solid var(--br-light);
+    outline-offset: 2px;
+}
+
+button:focus-visible, 
+.btn:focus-visible,
+a:focus-visible {
+    outline: 3px solid var(--br-light);
+    outline-offset: 2px;
+}
+
+/* Ensure minimum touch target size */
+@media (pointer: coarse) {
+    .btn, button, a.nav-link, .dropdown-item {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+    }
+}
+
+/* Carousel fade polish */
+.carousel-fade .carousel-item{
+  transition: opacity .6s ease-in-out;
+}
+.carousel-fade .carousel-item img{display:block; width:100%; height:auto}
+.carousel-fade .carousel-item-next, .carousel-fade .carousel-item-prev, .carousel-fade .carousel-item.active{
+  display:block;
+}
+.carousel-fade .carousel-item{opacity:0}
+.carousel-fade .carousel-item.active{opacity:1}
+
+/* Slight zoom on active image for a modern touch */
+.carousel-fade .carousel-item img{transition: transform .6s ease;}
+.carousel-fade .carousel-item.active img{transform: scale(1.01)}
+
+

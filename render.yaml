@@ -1,0 +1,40 @@
+databases:
+  - name: brtecnologia-db
+    databaseName: brtecnologia
+    user: brtecnologia
+    plan: free
+    region: oregon
+
+services:
+  - type: web
+    name: brtecnologia-catalog
+    runtime: php
+    plan: free
+    region: oregon
+    buildCommand: |
+      composer install --no-dev --optimize-autoloader
+      npm install
+      npm run build
+      php artisan config:cache
+      php artisan route:cache
+      php artisan view:cache
+    startCommand: heroku-php-apache2 public/
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        generateValue: true
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: DATABASE_URL
+        fromDatabase:
+          name: brtecnologia-db
+          property: connectionString
+      - key: SESSION_DRIVER
+        value: cookie
+      - key: CACHE_DRIVER
+        value: file
+      - key: QUEUE_CONNECTION
+        value: sync
