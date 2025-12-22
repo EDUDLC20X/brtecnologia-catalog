@@ -67,20 +67,9 @@ class ContentController extends Controller
                         "image_{$fieldName}" => 'image|mimes:jpeg,png,jpg,gif,webp|max:2048'
                     ]);
 
-                    // Delete old image if exists
-                    if ($content->image_path) {
-                        // Delete from Cloudinary if it was stored there
-                        if ($content->cloudinary_public_id) {
-                            $cloudinary = app(CloudinaryService::class);
-                            $cloudinary->delete($content->cloudinary_public_id);
-                        } elseif (!str_starts_with($content->image_path, 'http')) {
-                            // Delete local file
-                            if (Storage::disk('public')->exists($content->image_path)) {
-                                Storage::disk('public')->delete($content->image_path);
-                            }
-                            $this->cleanupOrphanedImages($content->key);
-                        }
-                    }
+                    // Guardar referencias de imagen anterior para eliminar después
+                    $oldImagePath = $content->image_path;
+                    $oldCloudinaryId = $content->cloudinary_public_id;
 
                     // Try Cloudinary first if configured
                     $cloudinary = app(CloudinaryService::class);
@@ -102,10 +91,27 @@ class ContentController extends Controller
                         $path = $file->storeAs('content', $safeName, 'public');
                     }
                     
+                    // Actualizar con nueva imagen
                     $content->update([
                         'image_path' => $path,
                         'cloudinary_public_id' => $cloudinaryPublicId,
                     ]);
+
+                    // AHORA eliminar imagen anterior (después de guardar la nueva)
+                    if ($oldImagePath) {
+                        if ($oldCloudinaryId) {
+                            // Eliminar de Cloudinary
+                            $cloudinary->delete($oldCloudinaryId);
+                        } elseif (!str_starts_with($oldImagePath, 'http')) {
+                            // Eliminar archivo local
+                            if (Storage::disk('public')->exists($oldImagePath)) {
+                                Storage::disk('public')->delete($oldImagePath);
+                            }
+                        }
+                    }
+                    
+                    // Limpiar otras imágenes huérfanas del mismo content key
+                    $this->cleanupOrphanedImages($content->key, $path);
                 }
             } else {
                 // Handle text/textarea/html content
@@ -130,16 +136,20 @@ class ContentController extends Controller
     }
 
     /**
-     * Clean up orphaned images for a content key
+     * Clean up orphaned images for a content key (excluding current image)
      */
-    private function cleanupOrphanedImages(string $contentKey): void
+    private function cleanupOrphanedImages(string $contentKey, ?string $currentPath = null): void
     {
         $prefix = str_replace('.', '-', $contentKey);
         $files = Storage::disk('public')->files('content');
         
+        // Obtener solo el nombre del archivo actual para excluirlo
+        $currentFilename = $currentPath ? basename($currentPath) : null;
+        
         foreach ($files as $file) {
             $filename = basename($file);
-            if (str_starts_with($filename, $prefix)) {
+            // Eliminar solo si coincide con el prefijo Y no es la imagen actual
+            if (str_starts_with($filename, $prefix) && $filename !== $currentFilename) {
                 Storage::disk('public')->delete($file);
             }
         }
@@ -168,12 +178,25 @@ class ContentController extends Controller
             return redirect()->back()->with('error', 'Este contenido no es una imagen');
         }
 
-        // Delete the uploaded image
-        if ($content->image_path && Storage::disk('public')->exists($content->image_path)) {
-            Storage::disk('public')->delete($content->image_path);
+        // Delete from Cloudinary if applicable
+        if ($content->cloudinary_public_id) {
+            $cloudinary = app(CloudinaryService::class);
+            $cloudinary->delete($content->cloudinary_public_id);
+        }
+        
+        // Delete local file if exists
+        if ($content->image_path && !str_starts_with($content->image_path, 'http')) {
+            if (Storage::disk('public')->exists($content->image_path)) {
+                Storage::disk('public')->delete($content->image_path);
+            }
+            // Also clean up any orphaned images
+            $this->cleanupOrphanedImages($content->key);
         }
 
-        $content->update(['image_path' => null]);
+        $content->update([
+            'image_path' => null,
+            'cloudinary_public_id' => null,
+        ]);
         
         SiteContent::clearCache();
 
