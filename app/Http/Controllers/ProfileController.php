@@ -81,11 +81,15 @@ class ProfileController extends Controller
 
         // Enviar correo de verificación al nuevo email
         try {
+            Log::info('Intentando enviar correo de verificación a: ' . $newEmail);
+            
             Mail::to($newEmail)->send(new EmailChangeVerification(
                 $user->name,
                 $newEmail,
                 $verificationUrl
             ));
+            
+            Log::info('Correo de verificación enviado exitosamente a: ' . $newEmail);
         } catch (\Exception $e) {
             // Si falla el envío, limpiar datos pendientes
             $user->update([
@@ -94,7 +98,18 @@ class ProfileController extends Controller
                 'email_change_requested_at' => null,
             ]);
             
-            Log::error('Error enviando correo de verificación: ' . $e->getMessage());
+            Log::error('Error enviando correo de verificación', [
+                'to' => $newEmail,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'mail_config' => [
+                    'mailer' => config('mail.default'),
+                    'host' => config('mail.mailers.smtp.host'),
+                    'port' => config('mail.mailers.smtp.port'),
+                    'username' => config('mail.mailers.smtp.username') ? 'SET' : 'NOT SET',
+                    'password' => config('mail.mailers.smtp.password') ? 'SET' : 'NOT SET',
+                ]
+            ]);
             
             return Redirect::route('profile.edit')
                 ->withErrors(['email' => 'No se pudo enviar el correo de verificación. Intenta más tarde.']);
