@@ -1,14 +1,8 @@
 #!/bin/bash
 
-# Build script para Render - B&R Tecnología
+# Build script para Render - B&R Tecnología Catálogo
 echo "=== Instalando dependencias de Composer ==="
 composer install --no-dev --optimize-autoloader
-
-echo "=== Instalando dependencias de NPM ==="
-npm install
-
-echo "=== Compilando assets ==="
-npm run build
 
 echo "=== Configurando permisos de storage ==="
 mkdir -p storage/framework/cache/data
@@ -24,8 +18,8 @@ php artisan storage:link --force || true
 echo "=== Ejecutando migraciones ==="
 php artisan migrate --force
 
-echo "=== Creando usuario administrador ==="
-php artisan db:seed --class=AdminUserSeeder --force
+echo "=== Creando usuario administrador y datos iniciales ==="
+php artisan db:seed --force
 
 echo "=== Limpiando y cacheando configuración ==="
 php artisan config:cache
@@ -34,4 +28,4 @@ php artisan view:cache
 
 echo "=== Build completado ==="
 echo "📧 Admin: eduardodlcruz05@gmail.com"
-echo "🔑 Pass: Admin2025BR""
+echo "🔑 Pass: Admin2025BR"

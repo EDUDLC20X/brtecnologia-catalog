@@ -6,6 +6,7 @@ use App\Mail\EmailChangeVerification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Str;
@@ -79,11 +80,25 @@ class ProfileController extends Controller
         $verificationUrl = route('profile.verify-email-change', ['token' => $token]);
 
         // Enviar correo de verificación al nuevo email
-        Mail::to($newEmail)->send(new EmailChangeVerification(
-            $user->name,
-            $newEmail,
-            $verificationUrl
-        ));
+        try {
+            Mail::to($newEmail)->send(new EmailChangeVerification(
+                $user->name,
+                $newEmail,
+                $verificationUrl
+            ));
+        } catch (\Exception $e) {
+            // Si falla el envío, limpiar datos pendientes
+            $user->update([
+                'pending_email' => null,
+                'email_change_token' => null,
+                'email_change_requested_at' => null,
+            ]);
+            
+            Log::error('Error enviando correo de verificación: ' . $e->getMessage());
+            
+            return Redirect::route('profile.edit')
+                ->withErrors(['email' => 'No se pudo enviar el correo de verificación. Intenta más tarde.']);
+        }
 
         return Redirect::route('profile.edit')
             ->with('status', 'email-verification-sent')

@@ -2,18 +2,16 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Category;
+use Illuminate\Support\Str;
 
 class CategorySeeder extends Seeder
 {
     /**
-     * Run the database seeds.
-     *
-     * @return void
+     * Crear categorías iniciales
      */
-    public function run()
+    public function run(): void
     {
         $categories = [
             'Laptops',
@@ -25,7 +23,12 @@ class CategorySeeder extends Seeder
         ];
 
         foreach ($categories as $name) {
-            \App\Models\Category::firstOrCreate(['name' => $name]);
+            Category::firstOrCreate(
+                ['name' => $name],
+                ['slug' => Str::slug($name)]
+            );
         }
+        
+        $this->command->info('✅ Categorías creadas: ' . count($categories));
     }
 }
