@@ -1,0 +1,45 @@
+# Ignorar archivos innecesarios en Docker
+.git
+.gitignore
+.env
+.env.example
+.env.local
+.env.*.local
+
+# Node modules (se instalan en el build)
+node_modules
+
+# Vendor (se instala en el build)
+vendor
+
+# Archivos de desarrollo
+.phpunit.result.cache
+phpunit.xml
+*.md
+!README.md
+
+# IDE
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# Logs y cache local
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/logs/.gitignore
+!storage/framework/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore
+
+# Testing
+tests
+*.test.php
+
+# Otros
+Postman_API_Collection.json
+TESTING_API.md
+DEPLOY_RENDER.md
