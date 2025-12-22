@@ -4,12 +4,13 @@ namespace App\Services;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Mail\Mailable;
 
 class MailService
 {
     /**
-     * Enviar correo con logging completo y manejo de errores robusto
+     * Enviar correo con Resend API (HTTP) o fallback a SMTP
      *
      * @param string|array $to Destinatario(s)
      * @param Mailable $mailable Instancia del correo a enviar
@@ -21,191 +22,184 @@ class MailService
         $toEmail = is_array($to) ? implode(', ', $to) : $to;
         $mailableClass = get_class($mailable);
         
-        // Log de configuración actual
-        $config = self::getMailConfig();
-        
         Log::info("=== INICIO ENVÍO DE CORREO [{$context}] ===", [
             'to' => $toEmail,
             'mailable' => $mailableClass,
-            'config' => $config,
             'timestamp' => now()->toDateTimeString(),
         ]);
         
-        // Verificar configuración mínima
-        if (empty($config['host']) || empty($config['username']) || empty($config['password'])) {
-            $errorMsg = 'Configuración de mail incompleta';
-            Log::error("=== ERROR MAIL [{$context}] ===", [
-                'error' => $errorMsg,
-                'missing' => [
-                    'host' => empty($config['host']),
-                    'username' => empty($config['username']),
-                    'password' => empty($config['password']),
-                ],
-            ]);
-            return [
-                'success' => false,
-                'message' => 'Error de configuración del servidor de correo',
-                'error' => $errorMsg,
-            ];
+        // Intentar con Resend primero (API HTTP - no bloqueado por Render)
+        $resendKey = config('services.resend.key');
+        
+        if (!empty($resendKey)) {
+            return self::sendWithResend($to, $mailable, $context);
         }
         
+        // Fallback a SMTP tradicional
+        Log::info("Resend no configurado, usando SMTP tradicional");
+        return self::sendWithSmtp($to, $mailable, $context);
+    }
+    
+    /**
+     * Enviar correo usando Resend API via HTTP
+     */
+    private static function sendWithResend($to, Mailable $mailable, string $context): array
+    {
+        $toEmail = is_array($to) ? $to : [$to];
+        
         try {
-            // Intentar enviar
-            Log::info("Ejecutando Mail::to({$toEmail})->send()...");
+            // Renderizar el mailable para obtener el HTML
+            $mailable->build();
             
+            // Obtener datos del mailable
+            $fromAddress = config('mail.from.address', 'onboarding@resend.dev');
+            $fromName = config('mail.from.name', 'B&R Tecnología');
+            
+            // Renderizar vista
+            $html = $mailable->render();
+            $subject = $mailable->subject ?? 'Mensaje de B&R Tecnología';
+            
+            Log::info("Enviando con Resend API (HTTP)", [
+                'to' => $toEmail,
+                'from' => "{$fromName} <{$fromAddress}>",
+                'subject' => $subject,
+            ]);
+            
+            // Llamada HTTP a Resend API
+            $response = Http::withToken(config('services.resend.key'))
+                ->timeout(30)
+                ->post('https://api.resend.com/emails', [
+                    'from' => "{$fromName} <{$fromAddress}>",
+                    'to' => $toEmail,
+                    'subject' => $subject,
+                    'html' => $html,
+                ]);
+            
+            if ($response->successful()) {
+                $data = $response->json();
+                Log::info("=== CORREO ENVIADO CON RESEND [{$context}] ===", [
+                    'to' => implode(', ', $toEmail),
+                    'resend_id' => $data['id'] ?? 'N/A',
+                ]);
+                
+                return [
+                    'success' => true,
+                    'message' => 'Correo enviado correctamente',
+                    'error' => null,
+                    'provider' => 'resend',
+                    'id' => $data['id'] ?? null,
+                ];
+            } else {
+                $errorData = $response->json();
+                Log::error("=== ERROR RESEND API [{$context}] ===", [
+                    'to' => implode(', ', $toEmail),
+                    'status' => $response->status(),
+                    'error' => $errorData,
+                ]);
+                
+                return [
+                    'success' => false,
+                    'message' => 'Error al enviar el correo',
+                    'error' => $errorData['message'] ?? 'Error desconocido',
+                    'provider' => 'resend',
+                ];
+            }
+            
+        } catch (\Exception $e) {
+            Log::error("=== ERROR RESEND EXCEPTION [{$context}] ===", [
+                'to' => implode(', ', $toEmail),
+                'exception' => get_class($e),
+                'message' => $e->getMessage(),
+            ]);
+            
+            return [
+                'success' => false,
+                'message' => 'Error al enviar el correo',
+                'error' => $e->getMessage(),
+                'provider' => 'resend',
+            ];
+        }
+    }
+    
+    /**
+     * Enviar correo usando SMTP tradicional (fallback)
+     */
+    private static function sendWithSmtp($to, Mailable $mailable, string $context): array
+    {
+        $toEmail = is_array($to) ? implode(', ', $to) : $to;
+        
+        try {
             Mail::to($to)->send($mailable);
             
-            // Verificar si hubo fallos silenciosos
             $failures = Mail::failures();
             if (!empty($failures)) {
-                Log::warning("=== FALLO SILENCIOSO MAIL [{$context}] ===", [
+                Log::warning("=== FALLO SILENCIOSO SMTP [{$context}] ===", [
                     'failures' => $failures,
                 ]);
                 return [
                     'success' => false,
                     'message' => 'El correo no pudo ser entregado',
                     'error' => 'Mail failures: ' . implode(', ', $failures),
+                    'provider' => 'smtp',
                 ];
             }
             
-            Log::info("=== CORREO ENVIADO EXITOSAMENTE [{$context}] ===", [
+            Log::info("=== CORREO ENVIADO CON SMTP [{$context}] ===", [
                 'to' => $toEmail,
-                'mailable' => $mailableClass,
             ]);
             
             return [
                 'success' => true,
                 'message' => 'Correo enviado correctamente',
                 'error' => null,
-            ];
-            
-        } catch (\Swift_TransportException $e) {
-            // Error de transporte SMTP
-            Log::error("=== ERROR SMTP [{$context}] ===", [
-                'to' => $toEmail,
-                'exception' => 'Swift_TransportException',
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-            ]);
-            return [
-                'success' => false,
-                'message' => 'Error de conexión con el servidor de correo',
-                'error' => $e->getMessage(),
-            ];
-            
-        } catch (\Symfony\Component\Mailer\Exception\TransportException $e) {
-            // Error de transporte Symfony (Laravel 9+)
-            Log::error("=== ERROR TRANSPORT [{$context}] ===", [
-                'to' => $toEmail,
-                'exception' => 'Symfony TransportException',
-                'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'debug' => $e->getDebug() ?? 'N/A',
-            ]);
-            return [
-                'success' => false,
-                'message' => 'Error de conexión con el servidor de correo',
-                'error' => $e->getMessage(),
+                'provider' => 'smtp',
             ];
             
         } catch (\Exception $e) {
-            // Error general
-            Log::error("=== ERROR GENERAL MAIL [{$context}] ===", [
+            Log::error("=== ERROR SMTP [{$context}] ===", [
                 'to' => $toEmail,
                 'exception' => get_class($e),
                 'message' => $e->getMessage(),
-                'code' => $e->getCode(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'trace' => $e->getTraceAsString(),
             ]);
+            
             return [
                 'success' => false,
-                'message' => 'Error al enviar el correo',
+                'message' => 'Error de conexión con el servidor de correo',
                 'error' => $e->getMessage(),
+                'provider' => 'smtp',
             ];
         }
     }
     
     /**
-     * Obtener configuración actual de mail (sanitizada)
+     * Obtener configuración actual de mail
      */
     public static function getMailConfig(): array
     {
         return [
+            'resend_configured' => !empty(config('services.resend.key')),
+            'resend_key' => config('services.resend.key') ? '***SET***' : 'NOT SET',
             'mailer' => config('mail.default'),
             'host' => config('mail.mailers.smtp.host'),
             'port' => config('mail.mailers.smtp.port'),
-            'encryption' => config('mail.mailers.smtp.encryption'),
-            'username' => config('mail.mailers.smtp.username'),
-            'password' => config('mail.mailers.smtp.password') ? '***SET***' : 'NOT SET',
             'from_address' => config('mail.from.address'),
             'from_name' => config('mail.from.name'),
-            'timeout' => config('mail.mailers.smtp.timeout'),
         ];
     }
     
     /**
-     * Verificar si la configuración de mail está completa
+     * Verificar si el servicio de mail está configurado
      */
     public static function isConfigured(): bool
     {
+        // Resend tiene prioridad
+        if (!empty(config('services.resend.key'))) {
+            return true;
+        }
+        
+        // Fallback a SMTP
         return !empty(config('mail.mailers.smtp.host'))
             && !empty(config('mail.mailers.smtp.username'))
             && !empty(config('mail.mailers.smtp.password'));
-    }
-    
-    /**
-     * Probar conexión SMTP sin enviar correo
-     */
-    public static function testConnection(): array
-    {
-        $config = self::getMailConfig();
-        
-        Log::info("=== TEST CONEXIÓN SMTP ===", $config);
-        
-        if (!self::isConfigured()) {
-            return [
-                'success' => false,
-                'message' => 'Configuración incompleta',
-                'config' => $config,
-            ];
-        }
-        
-        try {
-            // Intentar crear el transporte
-            $transport = new \Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport(
-                config('mail.mailers.smtp.host'),
-                config('mail.mailers.smtp.port'),
-                config('mail.mailers.smtp.encryption') === 'tls'
-            );
-            
-            $transport->setUsername(config('mail.mailers.smtp.username'));
-            $transport->setPassword(config('mail.mailers.smtp.password'));
-            
-            // Intentar conectar
-            $transport->start();
-            $transport->stop();
-            
-            Log::info("=== TEST SMTP EXITOSO ===");
-            
-            return [
-                'success' => true,
-                'message' => 'Conexión SMTP exitosa',
-                'config' => $config,
-            ];
-            
-        } catch (\Exception $e) {
-            Log::error("=== TEST SMTP FALLIDO ===", [
-                'error' => $e->getMessage(),
-                'config' => $config,
-            ]);
-            
-            return [
-                'success' => false,
-                'message' => 'Error de conexión: ' . $e->getMessage(),
-                'config' => $config,
-            ];
-        }
     }
 }

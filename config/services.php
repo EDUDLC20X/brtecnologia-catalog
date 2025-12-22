@@ -38,4 +38,8 @@ return [
         'upload_preset' => env('CLOUDINARY_UPLOAD_PRESET', 'ml_default'),
     ],
 
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
+    ],
+
 ];

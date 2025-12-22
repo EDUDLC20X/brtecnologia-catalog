@@ -39,19 +39,10 @@ services:
         value: file
       - key: QUEUE_CONNECTION
         value: sync
-      - key: MAIL_MAILER
-        value: smtp
-      - key: MAIL_HOST
-        value: smtp.gmail.com
-      - key: MAIL_PORT
-        value: "587"
-      - key: MAIL_USERNAME
-        value: "eduardodlcruz05@gmail.com"
-      - key: MAIL_PASSWORD
-        value: "iuciyhblmydrtxln"
-      - key: MAIL_ENCRYPTION
-        value: tls
+      # Resend API para envío de correos (HTTP, no bloqueado por Render)
+      - key: RESEND_API_KEY
+        value: "re_6WW2USse_64zokCHrmMW8d8i2bsbRzXwj"
       - key: MAIL_FROM_ADDRESS
-        value: "eduardodlcruz05@gmail.com"
+        value: "onboarding@resend.dev"
       - key: MAIL_FROM_NAME
         value: "B&R Tecnología"
