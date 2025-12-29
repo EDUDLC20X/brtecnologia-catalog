@@ -91,6 +91,29 @@ class ProductCatalogController extends Controller
                 });
         });
 
+        // Si por algún estado previo el cache quedó vacío, forzar recálculo inmediato
+        if ($categoriesWithProducts->isEmpty()) {
+            Cache::forget('catalog_categories_with_products');
+            $categoriesWithProducts = Category::withCount('products')
+                ->whereHas('products', function($query) {
+                    $query->where('is_active', true);
+                })
+                ->orderByDesc('products_count')
+                ->get()
+                ->map(function ($category) {
+                    $category->featuredProducts = Product::with(['mainImage'])
+                        ->where('category_id', $category->id)
+                        ->where('is_active', true)
+                        ->orderByDesc('created_at')
+                        ->limit(8)
+                        ->get();
+                    return $category;
+                })
+                ->filter(function ($category) {
+                    return $category->featuredProducts->count() > 0;
+                });
+        }
+
         return view('catalog.index', [
             'categories' => $categories,
             'priceRange' => $priceRange,
@@ -182,9 +205,6 @@ class ProductCatalogController extends Controller
 
     public function show(Product $product)
     {
-        // Incrementar contador de vistas
-        $product->incrementViews();
-        
         $product->load('images','mainImage','category');
         $relatedProducts = Product::where('category_id', $product->category_id)
                                   ->where('id', '!=', $product->id)

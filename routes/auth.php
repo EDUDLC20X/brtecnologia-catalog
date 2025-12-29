@@ -4,15 +4,25 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Rutas de Autenticación - Solo Administrador
+| Rutas de Autenticación
 |--------------------------------------------------------------------------
+| 
+| Sistema de autenticación para dos tipos de usuarios:
+| - Administradores: Login para gestión del sistema
+| - Clientes: Registro + Login para funcionalidades personalizadas
+|
 */
 
 Route::middleware('guest')->group(function () {
+    // Registro de clientes
+    Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
+    Route::post('register', [RegisteredUserController::class, 'store'])->middleware('throttle:5,1');
+
     // Login
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store'])->middleware('throttle:login');

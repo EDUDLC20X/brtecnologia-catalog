@@ -10,7 +10,7 @@
 <x-seo-meta 
     :title="$product->name"
     :description="Str::limit(strip_tags($product->description), 160)"
-    :keywords="$product->category?->name . ', ' . $product->sku_code . ', herramientas, B&R'"
+    :keywords="$product->category?->name . ', ' . $product->sku_code . ', equipos, B&R'"
     :image="$productImage"
     type="product"
     :price="$product->price_base"
@@ -21,6 +21,7 @@
 
 @section('content')
 <div class="container py-4">
+
     <div class="row g-4">
         <div class="col-12">
             <a href="{{ route('catalog.index') }}" class="text-muted small"><i class="bi bi-arrow-left"></i> Volver al catálogo</a>
@@ -86,7 +87,7 @@
                     <strong class="h4 text-dark">${{ number_format($product->price_base, 2) }}</strong>
                 @endif
             </div>
-            
+            <!-- Short Description -->
             <p class="text-muted">{{ Str::limit($product->description, 220) }}</p>
 
             <!-- Stock Status -->
@@ -101,11 +102,35 @@
                 @endif
             </div>
 
-            <div class="d-flex gap-2 mb-3">
+            <div class="d-flex gap-2 mb-3 flex-wrap">
                 <button class="btn btn-primary btn-lg" type="button" data-bs-toggle="modal" data-bs-target="#requestModal">
                     <i class="bi bi-envelope me-1"></i>Solicitar Información
                 </button>
-                <a href="#specs" class="btn btn-outline-secondary">Ver especificaciones</a>
+                
+                {{-- Botón Agregar a Cotización - Solo clientes --}}
+                @if(!auth()->check() || !auth()->user()->isAdmin())
+                    <button type="button" class="btn btn-success btn-lg add-to-quote-btn" 
+                            data-url="{{ route('quote.add', $product) }}">
+                        <i class="bi bi-cart-plus me-1"></i>Agregar a Cotización
+                    </button>
+                @endif
+                
+                @auth
+                    @if(!auth()->user()->isAdmin())
+                        <button type="button" 
+                                class="btn btn-lg favorite-btn {{ auth()->user()->hasFavorited($product->id) ? 'btn-danger' : 'btn-outline-danger' }}" 
+                                onclick="toggleFavorite('{{ $product->slug }}', this)"
+                                data-product-slug="{{ $product->slug }}">
+                            <i class="bi {{ auth()->user()->hasFavorited($product->id) ? 'bi-heart-fill' : 'bi-heart' }}"></i>
+                            <span>{{ auth()->user()->hasFavorited($product->id) ? 'En Favoritos' : 'Agregar a Favoritos' }}</span>
+                        </button>
+                    @endif
+                @else
+                    <a href="{{ route('login') }}?redirect={{ urlencode(request()->url()) }}" class="btn btn-outline-danger btn-lg" title="Inicia sesión para guardar favoritos">
+                        <i class="bi bi-heart me-1"></i>Agregar a Favoritos
+                    </a>
+                @endauth
+                <a href="#specs" class="btn btn-outline-secondary btn-lg">Ver especificaciones</a>
             </div>
 
             <div class="card mb-3">
@@ -154,6 +179,60 @@
 
 @push('scripts')
 <script>
+// Función para toggle de favoritos
+function toggleFavorite(productSlug, button) {
+    // Verificar si hay token CSRF disponible
+    var csrfToken = document.querySelector('meta[name="csrf-token"]');
+    if (!csrfToken) {
+        console.error('CSRF token not found');
+        return;
+    }
+    
+    button.disabled = true;
+    
+    fetch(`/api/favorites/${productSlug}/toggle`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': csrfToken.getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (response.status === 401) {
+            // No autenticado, redirigir a login
+            window.location.href = '{{ route("login") }}?redirect=' + encodeURIComponent(window.location.href);
+            return null;
+        }
+        return response.json();
+    })
+    .then(data => {
+        button.disabled = false;
+        if (data && data.success) {
+            const icon = button.querySelector('i');
+            const text = button.querySelector('span');
+            if (data.favorited) {
+                button.classList.remove('btn-outline-danger');
+                button.classList.add('btn-danger');
+                icon.className = 'bi bi-heart-fill';
+                if (text) text.textContent = 'En Favoritos';
+            } else {
+                button.classList.remove('btn-danger');
+                button.classList.add('btn-outline-danger');
+                icon.className = 'bi bi-heart';
+                if (text) text.textContent = 'Agregar a Favoritos';
+            }
+        } else if (data && data.message) {
+            alert(data.message);
+        }
+    })
+    .catch(error => {
+        button.disabled = false;
+        console.error('Error:', error);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function(){
     // Thumbnail buttons control the Bootstrap carousel and active state
     var carouselEl = document.getElementById('productCarousel');
@@ -191,44 +270,6 @@ document.addEventListener('DOMContentLoaded', function(){
                 } else {
                     lb.show();
                 }
-            });
-        });
-    }
-
-    // Request modal AJAX submission
-    var requestForm = document.getElementById('requestForm');
-    if (requestForm) {
-        requestForm.addEventListener('submit', function(e){
-            e.preventDefault();
-            var btn = this.querySelector('button[type=submit]');
-            var data = new FormData(this);
-            btn.disabled = true;
-            fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: data
-            }).then(function(res){
-                return res.json().catch(() => null);
-            }).then(function(json){
-                btn.disabled = false;
-                var msg = document.getElementById('requestMessage');
-                if (json && json.success) {
-                    msg.className = 'alert alert-success';
-                    msg.innerText = json.message || 'Solicitud enviada. Gracias.';
-                    requestForm.reset();
-                    setTimeout(function(){ var m = bootstrap.Modal.getInstance(document.getElementById('requestModal')); if(m) m.hide(); }, 900);
-                } else {
-                    msg.className = 'alert alert-danger';
-                    msg.innerText = (json && json.message) ? json.message : 'Ocurrió un error al enviar la solicitud.';
-                }
-            }).catch(function(){
-                btn.disabled = false;
-                var msg = document.getElementById('requestMessage');
-                msg.className = 'alert alert-danger';
-                msg.innerText = 'Ocurrió un error de red.';
             });
         });
     }
@@ -273,27 +314,119 @@ document.addEventListener('DOMContentLoaded', function(){
             </div>
             <div class="modal-body p-4">
                 <div id="requestMessage" role="status" class="mb-3"></div>
-                <form id="requestForm" action="{{ route('contact.send') }}" method="POST">
+                <form id="requestForm" action="{{ route('product.request', $product) }}" method="POST" onsubmit="return submitRequestForm(event);">
                     @csrf
-                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    @guest
                     <div class="mb-3">
-                        <label class="form-label">Nombre</label>
-                        <input class="form-control" name="name" required>
+                        <label class="form-label">Nombre <span class="text-danger">*</span></label>
+                        <input class="form-control" name="name" required placeholder="Tu nombre completo">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input class="form-control" type="email" name="email" required>
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input class="form-control" type="email" name="email" required placeholder="tu@email.com">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Mensaje</label>
-                        <textarea class="form-control" name="message" rows="4">Estoy interesado en el producto: {{ $product->name }}</textarea>
+                        <label class="form-label">Teléfono</label>
+                        <input class="form-control" name="phone" placeholder="(Opcional)">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Empresa</label>
+                        <input class="form-control" name="company" placeholder="(Opcional)">
+                    </div>
+                    @else
+                    <div class="alert alert-info mb-3">
+                        <i class="bi bi-person-check me-2"></i>
+                        Solicitando como: <strong>{{ auth()->user()->name }}</strong> ({{ auth()->user()->email }})
+                    </div>
+                    @endguest
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Cantidad</label>
+                            <input class="form-control" type="number" name="quantity" value="1" min="1" max="9999">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mensaje adicional</label>
+                        <textarea class="form-control" name="message" rows="3" placeholder="Describe tus necesidades o preguntas sobre el producto..."></textarea>
                     </div>
                     <div class="d-flex justify-content-end pt-2">
                         <button class="btn btn-secondary me-2" type="button" data-bs-dismiss="modal">Cerrar</button>
-                        <button class="btn btn-primary" type="submit">Enviar solicitud</button>
+                        <button class="btn btn-primary" type="submit" id="requestSubmitBtn"><i class="bi bi-send me-1"></i>Enviar solicitud</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+// Función global para enviar el formulario de solicitud
+function submitRequestForm(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    var form = document.getElementById('requestForm');
+    var btn = document.getElementById('requestSubmitBtn');
+    var msg = document.getElementById('requestMessage');
+    var originalBtnText = btn.innerHTML;
+    
+    // Limpiar mensaje previo
+    msg.className = '';
+    msg.innerHTML = '';
+    
+    // Deshabilitar botón y mostrar spinner
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Enviando...';
+    
+    var formData = new FormData(form);
+    
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(function(response) {
+        return response.json().then(function(data) {
+            return { ok: response.ok, data: data };
+        });
+    })
+    .then(function(result) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+        
+        if (result.ok && result.data.success) {
+            msg.className = 'alert alert-success d-flex align-items-center';
+            msg.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><div><strong>¡Solicitud enviada!</strong><br><small>' + (result.data.message || 'Nos comunicaremos contigo pronto.') + '</small></div>';
+            form.reset();
+            form.style.display = 'none';
+            
+            // Cerrar modal después de 3 segundos
+            setTimeout(function() {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('requestModal'));
+                if (modal) modal.hide();
+                setTimeout(function() {
+                    form.style.display = 'block';
+                    msg.className = '';
+                    msg.innerHTML = '';
+                }, 500);
+            }, 3000);
+        } else {
+            msg.className = 'alert alert-danger d-flex align-items-center';
+            msg.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>' + (result.data.message || 'Ocurrió un error al enviar la solicitud.') + '</div>';
+        }
+    })
+    .catch(function(error) {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+        msg.className = 'alert alert-danger d-flex align-items-center';
+        msg.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>Error de conexión. Por favor intenta de nuevo.</div>';
+        console.error('Error:', error);
+    });
+    
+    return false; // Prevenir envío tradicional del formulario
+}
+</script>

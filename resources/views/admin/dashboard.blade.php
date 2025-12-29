@@ -189,7 +189,7 @@
     <!-- Header -->
     <div class="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h1><i class="bi bi-speedometer2 me-2"></i>Panel de Administración</h1>
+            <h1 style="color: white;"><i class="bi bi-speedometer2 me-2" style="color: white;"></i>Panel de Administración</h1>
             <small style="color: rgba(255,255,255,0.9); font-weight: 500;">Bienvenido, {{ auth()->user()->name }}</small>
         </div>
         <div class="d-flex gap-2 flex-wrap">
@@ -263,6 +263,72 @@
                     <div class="stat-icon red">
                         <i class="bi bi-exclamation-triangle"></i>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Solicitudes Pendientes -->
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="admin-card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-envelope-paper"></i>
+                        Solicitudes de Clientes
+                        @if($totalPendingRequests > 0)
+                            <span class="badge bg-danger ms-2">{{ $totalPendingRequests }} pendientes</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if($pendingRequests->count() > 0)
+                        <div class="table-responsive">
+                            <table class="table admin-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Cliente</th>
+                                        <th>Email</th>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Mensaje</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($pendingRequests as $req)
+                                        <tr>
+                                            <td><span class="text-muted">{{ $req->created_at->format('d/m/Y H:i') }}</span></td>
+                                            <td><span class="fw-medium">{{ $req->name }}</span></td>
+                                            <td><a href="mailto:{{ $req->email }}" class="text-primary">{{ $req->email }}</a></td>
+                                            <td>
+                                                @if($req->product)
+                                                    <a href="{{ route('catalog.show', $req->product) }}" target="_blank" class="text-decoration-none">
+                                                        {{ Str::limit($req->product->name, 30) }}
+                                                    </a>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $req->quantity ?? 1 }}</td>
+                                            <td>
+                                                @if($req->message)
+                                                    <span title="{{ $req->message }}" style="cursor:help">{{ Str::limit($req->message, 40) }}</span>
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="empty-state">
+                            <i class="bi bi-inbox"></i>
+                            <p class="mb-0">No hay solicitudes pendientes</p>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

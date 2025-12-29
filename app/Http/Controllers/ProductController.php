@@ -19,7 +19,7 @@ class ProductController extends Controller
     {
         $query = Product::with(['category','images','mainImage']);
 
-        // Reuse public catalog search logic: name / sku / description
+        // Búsqueda por nombre, SKU o descripción
         if ($request->filled('search')) {
             $search = $request->get('search');
             $query->where(function ($q) use ($search) {
@@ -29,16 +29,71 @@ class ProductController extends Controller
             });
         }
 
-        // Optional filter by category
-        if ($request->filled('category')) {
+        // Filtro por categoría (soporta array 'categories[]' o singular 'category')
+        $selectedCategories = $request->get('categories', []);
+        if (is_string($selectedCategories)) {
+            $selectedCategories = [$selectedCategories];
+        }
+        $selectedCategories = array_filter($selectedCategories);
+        
+        if (!empty($selectedCategories)) {
+            $query->whereIn('category_id', $selectedCategories);
+        } elseif ($request->filled('category')) {
             $cat = intval($request->get('category'));
             if ($cat > 0) {
                 $query->where('category_id', $cat);
             }
         }
 
+        // Filtro por rango de precios
+        if ($request->filled('price_min')) {
+            $query->where('price_base', '>=', floatval($request->get('price_min')));
+        }
+        if ($request->filled('price_max')) {
+            $query->where('price_base', '<=', floatval($request->get('price_max')));
+        }
+
+        // Filtro por disponibilidad
+        if ($request->filled('availability')) {
+            $availability = $request->get('availability');
+            if ($availability === 'in') {
+                $query->where('stock_available', '>', 0);
+            } elseif ($availability === 'out') {
+                $query->where('stock_available', '<=', 0);
+            }
+        }
+
+        // Filtro solo ofertas
+        if ($request->filled('on_sale') && $request->get('on_sale')) {
+            $query->onSale();
+        }
+
+        // Ordenamiento
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'price_asc':
+                $query->orderBy('price_base', 'asc');
+                break;
+            case 'price_desc':
+                $query->orderBy('price_base', 'desc');
+                break;
+            case 'date_asc':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'newest':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
         // Admin listing uses normal pagination
-        $products = $query->orderBy('id','desc')->paginate(20)->withQueryString();
+        $products = $query->paginate(20)->withQueryString();
 
         $categories = Category::orderBy('name')->get();
 

@@ -266,7 +266,7 @@
                         <i class="bi bi-person-circle" style="font-size: 2rem;"></i>
                     </div>
                     <div>
-                        <h1>Mi Perfil</h1>
+                        <h1 style="color:#fef2f2;">Mi Perfil</h1>
                         <p>Administra tu información personal y seguridad</p>
                     </div>
                 </div>

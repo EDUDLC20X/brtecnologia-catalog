@@ -94,14 +94,17 @@
             <a href="{{ route('catalog.show', $product) }}" class="btn btn-outline-primary btn-sm">
                 <i class="bi bi-eye"></i> Ver detalles
             </a>
-            @if($product->stock_available > 0)
-                <button type="button" class="btn btn-primary btn-sm add-to-cart-btn" data-product-id="{{ $product->id }}">
-                    <i class="bi bi-cart-plus"></i> Agregar al carrito
-                </button>
-            @else
-                <button type="button" class="btn btn-secondary btn-sm" disabled>
-                    <i class="bi bi-exclamation-circle"></i> Sin stock
-                </button>
+            @if(!auth()->check() || !auth()->user()->isAdmin())
+                @if($product->stock_available > 0)
+                    <button type="button" class="btn btn-primary btn-sm add-to-quote-btn" 
+                            data-url="{{ route('quote.add', $product) }}">
+                        <i class="bi bi-cart-plus"></i> Agregar a Cotización
+                    </button>
+                @else
+                    <button type="button" class="btn btn-secondary btn-sm" disabled>
+                        <i class="bi bi-exclamation-circle"></i> Sin stock
+                    </button>
+                @endif
             @endif
         </div>
     </div>

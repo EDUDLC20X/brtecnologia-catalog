@@ -153,8 +153,60 @@
             </div>
         </div>
 
-        <div class="d-flex justify-content-center mt-4">
-            {{ $products->links() }}
+        {{-- Paginación mejorada --}}
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 gap-3">
+            <div class="text-muted small">
+                Mostrando {{ $products->firstItem() ?? 0 }} - {{ $products->lastItem() ?? 0 }} de {{ $products->total() }} productos
+            </div>
+            
+            @if($products->hasPages())
+                <nav aria-label="Paginación de productos">
+                    <ul class="pagination pagination-admin mb-0">
+                        {{-- Previous Page Link --}}
+                        @if($products->onFirstPage())
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-left"></i></span>
+                            </li>
+                        @else
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $products->previousPageUrl() }}" rel="prev">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @foreach($products->getUrlRange(1, $products->lastPage()) as $page => $url)
+                            @if($page == $products->currentPage())
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $page }}</span>
+                                </li>
+                            @elseif($page == 1 || $page == $products->lastPage() || ($page >= $products->currentPage() - 2 && $page <= $products->currentPage() + 2))
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $url }}">{{ $page }}</a>
+                                </li>
+                            @elseif($page == $products->currentPage() - 3 || $page == $products->currentPage() + 3)
+                                <li class="page-item disabled">
+                                    <span class="page-link">...</span>
+                                </li>
+                            @endif
+                        @endforeach
+
+                        {{-- Next Page Link --}}
+                        @if($products->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $products->nextPageUrl() }}" rel="next">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                        @else
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
+            @endif
         </div>
 
     @else
@@ -168,3 +220,62 @@
 
 @endsection
 
+@section('styles')
+<style>
+/* Paginación personalizada para admin */
+.pagination-admin {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.pagination-admin .page-item .page-link {
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    padding: 0.5rem 0.875rem;
+    color: #0f2744;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 40px;
+    text-align: center;
+}
+
+.pagination-admin .page-item .page-link:hover {
+    background: #f0f7ff;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}
+
+.pagination-admin .page-item.active .page-link {
+    background: linear-gradient(135deg, #0f2744 0%, #1e3a5f 100%);
+    border-color: #0f2744;
+    color: white;
+}
+
+.pagination-admin .page-item.disabled .page-link {
+    background: #f8fafc;
+    border-color: #e2e8f0;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Cards shadow mejoradas */
+.card.shadow-sm {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+}
+
+/* Table mejorada */
+.table-hover tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.table thead th {
+    font-weight: 600;
+    color: #374151;
+    border-bottom: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+</style>
+@endsection

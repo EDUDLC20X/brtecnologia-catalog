@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\User;
+use App\Models\ProductRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -37,6 +38,15 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        // Solicitudes de clientes
+        $pendingRequests = ProductRequest::with(['product', 'user'])
+            ->where('status', ProductRequest::STATUS_PENDING)
+            ->latest()
+            ->limit(10)
+            ->get();
+        
+        $totalPendingRequests = ProductRequest::where('status', ProductRequest::STATUS_PENDING)->count();
+
         return view('admin.dashboard', compact(
             'totalProducts',
             'activeProducts',
@@ -44,7 +54,9 @@ class DashboardController extends Controller
             'lowStockProducts',
             'outOfStockProducts',
             'lowStockItems',
-            'outOfStock'
+            'outOfStock',
+            'pendingRequests',
+            'totalPendingRequests'
         ));
     }
 }

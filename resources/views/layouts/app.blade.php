@@ -30,6 +30,8 @@
         @yield('styles')
         <!-- Site styles (cards, hero) -->
         <link rel="stylesheet" href="{{ asset('css/home.css') }}">
+        <!-- Client panel styles -->
+        <link rel="stylesheet" href="{{ asset('css/client.css') }}">
         <!-- Accessibility & Legibility improvements -->
         <link rel="stylesheet" href="{{ asset('css/accessibility.css') }}">
 
@@ -75,6 +77,76 @@
         </main>
 
         @include('layouts.footer')
+        
+        {{-- Toast global y funciones de cotización --}}
+        <script>
+        // Mostrar toast de notificación
+        function showToast(message, type) {
+            type = type || 'success';
+            // Remover toast anterior si existe
+            var existingToast = document.getElementById('globalToast');
+            if (existingToast) existingToast.remove();
+            
+            var bgClass = type === 'success' ? 'bg-success' : (type === 'error' ? 'bg-danger' : 'bg-warning');
+            var icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+            
+            var toastHtml = '<div id="globalToast" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">' +
+                '<div class="toast show ' + bgClass + ' text-white" role="alert">' +
+                '<div class="toast-body d-flex align-items-center">' +
+                '<i class="bi ' + icon + ' me-2 fs-5"></i>' +
+                '<span>' + message + '</span>' +
+                '<button type="button" class="btn-close btn-close-white ms-auto" onclick="this.closest(\'.toast-container\').remove()"></button>' +
+                '</div></div></div>';
+            document.body.insertAdjacentHTML('beforeend', toastHtml);
+            
+            setTimeout(function() {
+                var toast = document.getElementById('globalToast');
+                if (toast) toast.remove();
+            }, 3000);
+        }
+        
+        // Agregar a cotización via AJAX (global)
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.add-to-quote-btn');
+            if (!btn) return;
+            
+            e.preventDefault();
+            var url = btn.getAttribute('data-url');
+            if (!url) return;
+            
+            var originalHtml = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ quantity: 1 })
+            })
+            .then(function(response) { return response.json(); })
+            .then(function(data) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                if (data.success) {
+                    showToast(data.message || 'Producto agregado a la cotización', 'success');
+                    if (typeof updateQuoteBadge === 'function') updateQuoteBadge();
+                } else {
+                    showToast(data.message || 'Error al agregar', 'error');
+                }
+            })
+            .catch(function(error) {
+                btn.disabled = false;
+                btn.innerHTML = originalHtml;
+                showToast('Error de conexión', 'error');
+            });
+        });
+        </script>
+        
         @stack('scripts')
     </body>
 </html>

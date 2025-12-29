@@ -87,20 +87,6 @@
         </div>
     </div>
 
-    <!-- Alertas -->
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="bi bi-check-circle me-2"></i>{{ session('success') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="bi bi-exclamation-triangle me-2"></i>{{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    @endif
-
     <!-- Tabla de Categorías -->
     <div class="category-card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -114,6 +100,7 @@
                         <thead>
                             <tr>
                                 <th>ID</th>
+                                <th>Ícono</th>
                                 <th>Nombre</th>
                                 <th>Descripción</th>
                                 <th class="text-center">Productos</th>
@@ -124,6 +111,11 @@
                             @foreach($categories as $category)
                                 <tr>
                                     <td><code>#{{ $category->id }}</code></td>
+                                    <td>
+                                        <div style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                            <i class="bi {{ $category->icon ?? 'bi-box' }}" style="font-size: 1.25rem; color: #374151;"></i>
+                                        </div>
+                                    </td>
                                     <td>
                                         <strong>{{ $category->name }}</strong>
                                     </td>

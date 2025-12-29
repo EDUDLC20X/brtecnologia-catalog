@@ -33,11 +33,13 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
             'description' => 'nullable|string|max:1000',
+            'icon' => 'nullable|string|max:50',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.unique' => 'Ya existe una categoría con ese nombre.',
             'name.max' => 'El nombre no puede exceder 255 caracteres.',
             'description.max' => 'La descripción no puede exceder 1000 caracteres.',
+            'icon.max' => 'La clase de ícono no puede exceder 50 caracteres.',
         ]);
 
         Category::create($validated);
@@ -62,11 +64,13 @@ class CategoryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
             'description' => 'nullable|string|max:1000',
+            'icon' => 'nullable|string|max:50',
         ], [
             'name.required' => 'El nombre es obligatorio.',
             'name.unique' => 'Ya existe una categoría con ese nombre.',
             'name.max' => 'El nombre no puede exceder 255 caracteres.',
             'description.max' => 'La descripción no puede exceder 1000 caracteres.',
+            'icon.max' => 'La clase de ícono no puede exceder 50 caracteres.',
         ]);
 
         $category->update($validated);

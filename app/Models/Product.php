@@ -23,7 +23,6 @@ class Product extends Model
         'price_base',
         'is_active',
         'is_featured',
-        'views_count',
         // Campos de ofertas
         'is_on_sale',
         'sale_price',
@@ -40,7 +39,6 @@ class Product extends Model
         'sale_starts_at' => 'datetime',
         'sale_ends_at' => 'datetime',
         'technical_specs' => 'array',
-        'views_count' => 'integer',
     ];
 
     /**
@@ -67,12 +65,14 @@ class Product extends Model
     }
 
     /**
-     * Incrementar contador de vistas
+     * Relación con solicitudes de productos
      */
-    public function incrementViews(): void
+    public function productRequests()
     {
-        $this->increment('views_count');
+        return $this->hasMany(ProductRequest::class);
     }
+
+
 
     /**
      * Verifica si el producto está actualmente en oferta válida.
@@ -184,6 +184,8 @@ class Product extends Model
         static::saved(function (Product $product) {
             Cache::forget('catalog_categories');
             Cache::forget('catalog_price_range');
+            Cache::forget('catalog_products_on_sale');
+            Cache::forget('catalog_categories_with_products');
         });
 
         static::deleting(function (Product $product) {
@@ -196,6 +198,8 @@ class Product extends Model
             // Invalidar caché
             Cache::forget('catalog_categories');
             Cache::forget('catalog_price_range');
+            Cache::forget('catalog_products_on_sale');
+            Cache::forget('catalog_categories_with_products');
         });
     }
 }

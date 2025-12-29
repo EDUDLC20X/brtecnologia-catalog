@@ -325,11 +325,7 @@
                      class="login-logo"
                      onerror="this.onerror=null; this.src='{{ asset('images/logo-white.png') }}';">
                 <h1>{{ $companyName }}</h1>
-                <p>Sistema de Gestión de Catálogo</p>
-                <div class="admin-badge">
-                    <i class="bi bi-shield-lock"></i>
-                    Acceso Administrativo
-                </div>
+                <p>Accede a tu cuenta</p>
             </div>
 
             <!-- Body -->
@@ -414,6 +410,9 @@
                 </form>
 
                 <div class="login-footer">
+                    <p style="color: #64748b; font-size: 0.875rem; margin-bottom: 1rem;">
+                        ¿No tienes cuenta? <a href="{{ route('register') }}" style="color: var(--admin-accent); text-decoration: none; font-weight: 600;">Regístrate aquí</a>
+                    </p>
                     <a href="{{ route('home') }}" class="back-link">
                         <i class="bi bi-arrow-left"></i>
                         Volver al sitio público

@@ -54,3 +54,17 @@ if (!function_exists('content_image_url')) {
         return asset($path);
     }
 }
+
+if (!function_exists('get_tax_rate')) {
+    /**
+     * Get the configured tax rate (IVA) from site content.
+     *
+     * @param bool $asDecimal If true, returns as decimal (0.12), otherwise as percentage (12)
+     * @return float
+     */
+    function get_tax_rate(bool $asDecimal = false): float
+    {
+        $rate = (float) \App\Models\SiteContent::get('global.tax_rate', 12);
+        return $asDecimal ? ($rate / 100) : $rate;
+    }
+}

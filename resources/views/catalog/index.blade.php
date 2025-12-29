@@ -5,8 +5,8 @@
 @section('seo')
 <x-seo-meta 
     :title="request('search') ? 'Buscar: '.request('search').' | Catálogo' : 'Catálogo de Productos'"
-    description="Explora nuestro catálogo completo de herramientas eléctricas, equipos industriales y tecnología."
-    keywords="catálogo, herramientas, equipos industriales, tecnología, productos B&R"
+    description="Explora nuestro catálogo completo de equipos de ultima generación y tecnología avanzada. Encuentra las mejores soluciones en B&R Tecnología para tus necesidades tecnológicas."
+    keywords="catálogo, hardware, equipos avanzados, tecnología, productos B&R"
 />
 @endsection
 
@@ -28,7 +28,7 @@
                 @foreach($categories->take(8) as $category)
                     <a href="{{ route('catalog.index', ['categories' => [$category->id]]) }}" 
                        class="category-bar-item {{ in_array($category->id, (array)request('categories', [])) ? 'active' : '' }}">
-                        <i class="bi bi-box-seam"></i>
+                        <i class="bi {{ $category->icon ?? 'bi-box' }}"></i>
                         <span>{{ $category->name }}</span>
                     </a>
                 @endforeach
@@ -142,27 +142,7 @@
             @endif
             
             {{-- Sección: Categorías Más Visitadas --}}
-            @if($categories->count() > 0)
-                <section class="catalog-section mb-5">
-                    <div class="section-header">
-                        <h2 class="section-title">
-                            <i class="bi bi-grid-3x3-gap-fill"></i>
-                            Categorías
-                        </h2>
-                    </div>
-                    <div class="categories-grid">
-                        @foreach($categories as $category)
-                            <a href="{{ route('catalog.index', ['categories' => [$category->id]]) }}" class="category-card-mini">
-                                <div class="category-icon">
-                                    <i class="bi bi-box-seam"></i>
-                                </div>
-                                <span class="category-name">{{ $category->name }}</span>
-                                <span class="category-count">{{ $category->products_count }} productos</span>
-                            </a>
-                        @endforeach
-                    </div>
-                </section>
-            @endif
+            
 
             {{-- Secciones de Productos por Categoría --}}
             @if(isset($categoriesWithProducts))

@@ -202,4 +202,45 @@ class MailService
             && !empty(config('mail.mailers.smtp.username'))
             && !empty(config('mail.mailers.smtp.password'));
     }
+
+    /**
+     * Probar conexión con el servidor de mail
+     */
+    public static function testConnection(): array
+    {
+        // Si Resend está configurado, verificar con una llamada de API simple
+        if (!empty(config('services.resend.key'))) {
+            try {
+                $response = Http::withToken(config('services.resend.key'))
+                    ->timeout(10)
+                    ->get('https://api.resend.com/domains');
+                
+                return [
+                    'success' => $response->successful(),
+                    'provider' => 'resend',
+                    'message' => $response->successful() 
+                        ? 'Conexión con Resend API exitosa' 
+                        : 'Error en Resend API',
+                    'status_code' => $response->status(),
+                ];
+            } catch (\Exception $e) {
+                return [
+                    'success' => false,
+                    'provider' => 'resend',
+                    'message' => 'Error de conexión: ' . $e->getMessage(),
+                    'status_code' => null,
+                ];
+            }
+        }
+        
+        // SMTP test básico
+        return [
+            'success' => self::isConfigured(),
+            'provider' => 'smtp',
+            'message' => self::isConfigured() 
+                ? 'SMTP configurado correctamente' 
+                : 'SMTP no configurado',
+            'status_code' => null,
+        ];
+    }
 }
