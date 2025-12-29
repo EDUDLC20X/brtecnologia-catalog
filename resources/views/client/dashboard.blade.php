@@ -8,7 +8,7 @@
     <div class="client-page-header">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h1><i class="bi bi-person-circle me-2"></i>¡Hola, {{ $user->name }}!</h1>
+                <h1 style="color:#fef2f2;"><i class="bi bi-person-circle me-2"  style="color:#fef2f2;"></i>¡Hola, {{ $user->name }}!</h1>
                 <p>Bienvenido a tu panel de cliente</p>
             </div>
             <div class="quick-actions">
@@ -145,7 +145,7 @@
             <div class="section-card">
                 <div class="section-header">
                     <h2><i class="bi bi-stars text-warning"></i> Recomendados para ti</h2>
-                    <a href="{{ route('client.recommendations') }}">Ver más <i class="bi bi-arrow-right"></i></a>
+                    <a href="{{ route('catalog.index') }}">Ver más <i class="bi bi-arrow-right"></i></a>
                 </div>
                 <div class="section-body">
                     <div class="products-mini-grid">
@@ -171,7 +171,7 @@
         <div class="col-lg-{{ $recommendations->count() > 0 ? '6' : '12' }} mb-4">
             <div class="section-card">
                 <div class="section-header">
-                    <h2><i class="bi bi-envelope text-success"></i> Mis Solicitudes</h2>
+                    <h2 ><i class="bi bi-envelope text-success" ></i> Mis Solicitudes</h2>
                     @if($recentRequests->count() > 0)
                         <a href="{{ route('client.requests.index') }}">Ver todas <i class="bi bi-arrow-right"></i></a>
                     @endif

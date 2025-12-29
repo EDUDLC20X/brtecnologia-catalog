@@ -13,7 +13,7 @@
 
     <!-- Header -->
     <div class="client-page-header">
-        <h1><i class="bi bi-heart-fill me-2"></i>Mis Favoritos</h1>
+        <h1 style="color:#fef2f2;"><i class="bi bi-heart-fill me-2" style="color:#fef2f2;"></i>Mis Favoritos</h1>
         <p>{{ $favorites->total() }} productos guardados</p>
     </div>
 

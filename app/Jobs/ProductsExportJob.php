@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Mail\ProductsExportReady;
-use Illuminate\Support\Facades\Mail;
+use App\Services\MailService;
 
 class ProductsExportJob implements ShouldQueue
 {
@@ -97,12 +97,25 @@ class ProductsExportJob implements ShouldQueue
 
         // Send notification (attach file when available)
         try {
-            Mail::to($this->userEmail)->send(new ProductsExportReady($url, file_exists($localPath) ? $localPath : null));
-            Log::info('ProductsExportJob: export sent', [
-                'email' => $this->userEmail,
-                'file' => $url,
-                'local_path' => $localPath,
-            ]);
+            $result = MailService::send(
+                $this->userEmail,
+                new ProductsExportReady($url, file_exists($localPath) ? $localPath : null),
+                'products_export'
+            );
+            
+            if ($result['success']) {
+                Log::info('ProductsExportJob: export sent via Resend', [
+                    'email' => $this->userEmail,
+                    'file' => $url,
+                    'local_path' => $localPath,
+                    'provider' => $result['provider'] ?? 'unknown',
+                ]);
+            } else {
+                Log::warning('ProductsExportJob: export mail failed', [
+                    'email' => $this->userEmail,
+                    'error' => $result['error'] ?? 'Unknown error',
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Failed to send products export mail: '.$e->getMessage());
         }

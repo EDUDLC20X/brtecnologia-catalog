@@ -65,15 +65,34 @@ class MailService
                 'subject' => $subject,
             ]);
             
+            // Preparar datos del email
+            $emailData = [
+                'from' => "{$fromName} <{$fromAddress}>",
+                'to' => $toEmail,
+                'subject' => $subject,
+                'html' => $html,
+            ];
+            
+            // Verificar si el mailable tiene attachments
+            if (!empty($mailable->attachments)) {
+                $attachments = [];
+                foreach ($mailable->attachments as $attachment) {
+                    if (isset($attachment['file']) && file_exists($attachment['file'])) {
+                        $attachments[] = [
+                            'filename' => $attachment['options']['as'] ?? basename($attachment['file']),
+                            'content' => base64_encode(file_get_contents($attachment['file'])),
+                        ];
+                    }
+                }
+                if (!empty($attachments)) {
+                    $emailData['attachments'] = $attachments;
+                }
+            }
+            
             // Llamada HTTP a Resend API
             $response = Http::withToken(config('services.resend.key'))
                 ->timeout(30)
-                ->post('https://api.resend.com/emails', [
-                    'from' => "{$fromName} <{$fromAddress}>",
-                    'to' => $toEmail,
-                    'subject' => $subject,
-                    'html' => $html,
-                ]);
+                ->post('https://api.resend.com/emails', $emailData);
             
             if ($response->successful()) {
                 $data = $response->json();

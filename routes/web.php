@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\AdminStatsController;
 use App\Http\Controllers\Client\ClientDashboardController;
 use App\Http\Controllers\Client\FavoriteController;
 use App\Http\Controllers\Client\ProductRequestController;
+use App\Http\Controllers\Client\ProductHistoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -92,6 +93,10 @@ Route::middleware(['auth', 'client'])->prefix('mi-cuenta')->name('client.')->gro
     Route::get('/solicitudes', [ProductRequestController::class, 'index'])->name('requests.index');
     Route::get('/solicitudes/{productRequest}', [ProductRequestController::class, 'show'])->name('requests.show');
     Route::post('/solicitudes/{productRequest}/cancelar', [ProductRequestController::class, 'cancel'])->name('requests.cancel');
+    
+    // Historial de productos vistos
+    Route::get('/historial', [ProductHistoryController::class, 'index'])->name('history.index');
+    Route::delete('/historial', [ProductHistoryController::class, 'clear'])->name('history.clear');
 });
 
 // API para favoritos (solo para clientes autenticados, no admins)

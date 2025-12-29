@@ -74,7 +74,7 @@
     <!-- Header -->
     <div class="admin-header d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-            <h1><i class="bi bi-tags me-2"></i>Gestión de Categorías</h1>
+            <h1 style="color:#fef2f2;"><i class="bi bi-tags me-2" style="color:#fef2f2;"></i>Gestión de Categorías</h1>
             <small class="opacity-75">Administra las categorías de productos</small>
         </div>
         <div class="d-flex gap-2">

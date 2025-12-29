@@ -145,7 +145,7 @@
 
     <!-- Header -->
     <div class="client-page-header">
-        <h1><i class="bi bi-envelope-paper me-2"></i>Mis Solicitudes</h1>
+        <h1 style="color:#fef2f2;"><i class="bi bi-envelope-paper me-2"  style="color:#fef2f2;"></i>Mis Solicitudes</h1>
         <p>{{ $requests->total() }} solicitudes realizadas</p>
     </div>
 

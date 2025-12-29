@@ -89,24 +89,43 @@
                     <a href="{{ route('register') }}" class="btn btn-primary w-100"><i class="bi bi-person-plus me-1"></i>Crear Cuenta</a>
                 @endguest
                 @auth
-                    <div class="dropdown">
-                        <a class="btn btn-outline-secondary w-100 dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            @if(auth()->user()->isAdmin())<i class="bi bi-shield-check text-primary me-1"></i>@else<i class="bi bi-person-circle me-1"></i>@endif
-                            {{ auth()->user()->name }}
-                        </a>
-                        <ul class="dropdown-menu w-100">
+                    <!-- Menú de usuario móvil - Sin dropdown, opciones directas -->
+                    <div class="mobile-user-menu">
+                        <div class="mobile-user-header mb-3">
                             @if(auth()->user()->isAdmin())
-                                <li><a class="dropdown-item" href="{{ route('admin.dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Dashboard</a></li>
+                                <i class="bi bi-shield-check text-primary me-2"></i>
                             @else
-                                <li><a class="dropdown-item" href="{{ route('client.dashboard') }}"><i class="bi bi-house me-2"></i>Mi Panel</a></li>
-                                <li><a class="dropdown-item" href="{{ route('client.favorites.index') }}"><i class="bi bi-heart me-2"></i>Mis Favoritos</a></li>
-                                <li><a class="dropdown-item" href="{{ route('client.requests.index') }}"><i class="bi bi-envelope me-2"></i>Mis Solicitudes</a></li>
+                                <i class="bi bi-person-circle me-2"></i>
                             @endif
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ route('profile.edit') }}"><i class="bi bi-gear me-2"></i>Configuración</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right me-2"></i>Cerrar sesión</button></form></li>
-                        </ul>
+                            <span class="fw-bold">{{ auth()->user()->name }}</span>
+                        </div>
+                        
+                        <div class="mobile-user-links">
+                            @if(auth()->user()->isAdmin())
+                                <a href="{{ route('admin.dashboard') }}" class="mobile-user-link">
+                                    <i class="bi bi-speedometer2"></i>Dashboard
+                                </a>
+                            @else
+                                <a href="{{ route('client.dashboard') }}" class="mobile-user-link">
+                                    <i class="bi bi-house"></i>Mi Panel
+                                </a>
+                                <a href="{{ route('client.favorites.index') }}" class="mobile-user-link">
+                                    <i class="bi bi-heart"></i>Mis Favoritos
+                                </a>
+                                <a href="{{ route('client.requests.index') }}" class="mobile-user-link">
+                                    <i class="bi bi-envelope"></i>Mis Solicitudes
+                                </a>
+                            @endif
+                            <a href="{{ route('profile.edit') }}" class="mobile-user-link">
+                                <i class="bi bi-gear"></i>Configuración
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" class="d-inline w-100">
+                                @csrf
+                                <button type="submit" class="mobile-user-link text-danger w-100 text-start border-0 bg-transparent">
+                                    <i class="bi bi-box-arrow-right"></i>Cerrar sesión
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 @endauth
             </div>
@@ -460,6 +479,16 @@
         box-shadow: 0 20px 50px rgba(0,0,0,0.4);
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255,255,255,0.1);
+        position: relative;
+        z-index: 1050;
+    }
+    
+    #navbarMain .dropdown-menu {
+        position: relative !important;
+        transform: none !important;
+        width: 100%;
+        background: rgba(0,0,0,0.3) !important;
+        z-index: 1051;
     }
     
     .navbar-pro .navbar-nav {
@@ -522,6 +551,53 @@
         border: none;
         color: white;
         border-radius: 0;
+    }
+    
+    /* Menú de usuario móvil */
+    .mobile-user-menu {
+        background: rgba(255,255,255,0.05);
+        border-radius: 16px;
+        padding: 1rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .mobile-user-header {
+        display: flex;
+        align-items: center;
+        color: #ffffff;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        font-size: 1.1rem;
+    }
+    
+    .mobile-user-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        margin-top: 0.75rem;
+    }
+    
+    .mobile-user-link {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.85rem 1rem;
+        color: rgba(255,255,255,0.85);
+        text-decoration: none;
+        border-radius: 10px;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+    }
+    
+    .mobile-user-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: #ffffff;
+    }
+    
+    .mobile-user-link i {
+        font-size: 1.1rem;
+        width: 24px;
+        text-align: center;
     }
 }
 
